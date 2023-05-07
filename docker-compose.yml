@@ -1,0 +1,26 @@
+version: '3'
+services:
+  geth:
+    env_file:
+      - .env
+    build: .
+    ports:
+      - 8545:8545
+      - 8546:8546
+      - 30303:30303
+    volumes:
+      - geth-data:/root
+    container_name: geth
+    restart: always
+    networks:
+      geth-private-net:
+
+networks:
+  geth-private-net:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: ${SUBNET}
+
+volumes:
+  geth-data:
