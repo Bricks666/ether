@@ -2,8 +2,10 @@ version: '3'
 services:
   geth:
     env_file:
-      - .env
-    build: .
+      - .env.production
+    build:
+      dockerfile: Dockerfile.ether
+      context: .
     ports:
       - 8545:8545
       - 8546:8546
@@ -11,6 +13,18 @@ services:
     volumes:
       - geth-data:/root
     container_name: geth
+    restart: always
+    networks:
+      geth-private-net:
+  server:
+    env_file:
+      - .env.production
+    build:
+      dockerfile: Dockerfile.server
+      context: .
+    ports:
+      - ${PORT}:${PORT}
+    container_name: server
     restart: always
     networks:
       geth-private-net:

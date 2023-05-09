@@ -9,7 +9,7 @@ COPY genesis.json .
 COPY scripts/launch.sh /root/launch.sh
 COPY ./keystore .ethereum/keystore
 
-RUN geth --datadir /root/.ethereum init ./genesis.json
+RUN geth  init ./genesis.json
 
 ENTRYPOINT [ "./launch.sh" ]
 # CMD [ "/bin/busybox", "sh","./launch.sh" ]
