@@ -12,4 +12,5 @@ geth --http \
   --ws.origins '*' \
   --ws.addr 0.0.0.0 \
   --allow-insecure-unlock \
+  --signer=/root/.clef/clef.ipc \
   --networkid=$NETWORK_ID

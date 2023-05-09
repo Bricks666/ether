@@ -1,26 +1,29 @@
 import dotenv from 'dotenv';
-import express, { json } from 'express';
+import express, { Router, json } from 'express';
 import cors from 'cors';
-import Web3 from 'web3';
-import { HttpProvider } from 'web3-core';
+import { contractsRouter } from './contracts';
+import { web3Service } from './web3';
+import { databaseService } from './database';
 
 dotenv.config();
 
 const app = express();
 
-const web3 = new Web3(process.env.NODE_HOST);
-
 app.use(json(), cors());
 
-app.get('/ping', async (req, res) => {
-	const accounts = await web3.eth.getAccounts();
+const mainRouter = Router();
+
+mainRouter.get('/ping', async (req, res) => {
+	const accounts = await web3Service.eth.getAccounts();
 	res.json(accounts);
 });
 
-app.listen(process.env.PORT, () => {
-	const provider = web3.currentProvider as HttpProvider;
+mainRouter.use('/contracts', contractsRouter);
 
-	console.log(provider.connected);
-	setTimeout(() => console.log(provider.connected), 1500);
-	console.log('hello world');
+app.use('/api', mainRouter);
+
+app.listen(process.env.PORT, async () => {
+	web3Service.setProvider(process.env.NODE_HOST);
+	databaseService.config.filename = process.env.DB_FILE;
+	await databaseService.open();
 });

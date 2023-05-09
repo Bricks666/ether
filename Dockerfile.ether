@@ -1,17 +1,18 @@
-FROM ethereum/client-go:latest
+FROM ethereum/client-go:alltools-latest
 
 USER root
 WORKDIR /root
 
-# RUN apk add --no-cache bash
-
 COPY genesis.json .
 COPY scripts/launch.sh /root/launch.sh
+COPY scripts/clef.sh /root/clef.sh
 COPY ./keystore .ethereum/keystore
 
+
+ENV NETWORK_ID=14
+
 RUN geth  init ./genesis.json
+# RUN  echo ok | echo password | clef init
 
 ENTRYPOINT [ "./launch.sh" ]
-# CMD [ "/bin/busybox", "sh","./launch.sh" ]
-# CMD [ "sh", "./launch.sh" ]
-# ENTRYPOINT [ "geth" ]
+# "sh","./clef.sh", "&",

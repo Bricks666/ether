@@ -9,5 +9,5 @@ export default defineConfig({
 		format: 'es',
 	},
 	external: [/\.json/],
-	plugins: [ commonJs(), typescript()],
+	plugins: [commonJs(), typescript()],
 });
