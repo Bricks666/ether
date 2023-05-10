@@ -2,6 +2,7 @@ FROM node:lts-alpine as build
 
 WORKDIR /app
 
+COPY tsconfig.json .
 COPY package*.json .
 RUN npm ci --ignore-scripts
 
@@ -18,7 +19,11 @@ WORKDIR /app
 COPY package*.json .
 RUN npm ci --omit dev --ignore-scripts
 
-COPY --from=build /app/dist/ .
+# Иначе сыпится ошибка с отсутствием бинарников для sqlite
+RUN npm uninstall sqlite3
+RUN npm install sqlite3 -S
+
+COPY --from=build /app/dist/* .
 
 EXPOSE ${PORT}
 

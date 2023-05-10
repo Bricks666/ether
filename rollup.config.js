@@ -6,8 +6,13 @@ export default defineConfig({
 	input: './src/index.ts',
 	output: {
 		dir: 'dist',
-		format: 'es',
+		format: 'esm',
 	},
 	external: [/\.json/],
-	plugins: [commonJs(), typescript()],
+	plugins: [
+		typescript({
+			tsconfig: './tsconfig.json',
+		}),
+		commonJs({ extensions: ['.js', '.ts'] }),
+	],
 });

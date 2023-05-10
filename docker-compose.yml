@@ -26,6 +26,8 @@ services:
       - ${PORT}:${PORT}
     container_name: server
     restart: always
+    depends_on:
+      - geth
     networks:
       geth-private-net:
 
