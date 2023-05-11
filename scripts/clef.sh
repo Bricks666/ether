@@ -1,8 +1,6 @@
 #!/bin/sh
 
-echo $NETWORK_ID
-
-clef --chainid $NETWORK_ID \
+echo -e "${CLEF_PASSWORD}\n" | clef --chainid $NETWORK_ID \
   --http \
   --http.addr 0.0.0.0 \
   --http.vhosts '*' \

@@ -1,18 +1,17 @@
-FROM ethereum/client-go:alltools-latest
+FROM ethereum/client-go:release-1.10
 
 USER root
 WORKDIR /root
 
+ARG CLEF_PASSWORD
+
 COPY genesis.json .
-COPY scripts/launch.sh /root/launch.sh
-COPY scripts/clef.sh /root/clef.sh
+# COPY scripts/clef.sh /root/clef.sh
+COPY scripts/geth.sh /root/geth.sh
+# COPY scripts/launch.sh /root/launch.sh
 COPY ./keystore .ethereum/keystore
 
-
-ENV NETWORK_ID=14
-
 RUN geth  init ./genesis.json
-# RUN  echo ok | echo password | clef init
+# RUN echo -e "${CLEF_PASSWORD}\n${CLEF_PASSWORD}\n" | clef --stdio-ui init
 
-ENTRYPOINT [ "./launch.sh" ]
-# "sh","./clef.sh", "&",
+ENTRYPOINT [ "sh", "./geth.sh" ]

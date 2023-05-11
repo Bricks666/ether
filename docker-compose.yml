@@ -6,6 +6,8 @@ services:
     build:
       dockerfile: Dockerfile.ether
       context: .
+      args:
+        - CLEF_PASSWORD=${CLEF_PASSWORD}
     ports:
       - 8545:8545
       - 8546:8546

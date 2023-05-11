@@ -25,24 +25,21 @@ class ContractsController {
 		res: Response<DeployedResponseBody>
 	) {
 		const { senderAddress, senderIndex, ...params } = req.body;
-		if (!senderAddress && !senderIndex) {
-			return res.status(400).send();
-		}
 
 		let contractRow: ContractRow;
 
-		if (senderAddress) {
+		if (senderAddress !== undefined) {
 			contractRow = await this.#contractsService.deployByAddress({
 				...params,
 				senderAddress,
 			});
-		} else if (senderIndex) {
+		} else if (senderIndex !== undefined) {
 			contractRow = await this.#contractsService.deployByIndex({
 				...params,
 				senderIndex,
 			});
 		} else {
-			throw new Error('Server error');
+			return res.status(400).send();
 		}
 
 		return res.status(201).json(contractRow);

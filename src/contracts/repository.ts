@@ -29,7 +29,7 @@ export class ContractsRepository {
 	async create(params: ContractRow): Promise<ContractRow> {
 		const { name, address, } = params;
 		await this.#databaseService.exec(
-			`INSERT INTO ${this.#TABLE_NAME} VALUES("${name}", ${address})`
+			`INSERT INTO ${this.#TABLE_NAME} VALUES("${name}", "${address}")`
 		);
 		return this.getByName({ name: params.name, }) as Promise<ContractRow>;
 	}
