@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY tsconfig.json .
 COPY package*.json .
-RUN npm ci --ignore-scripts
+RUN npm i --ignore-scripts
 
 COPY ./rollup.config.js .
 
@@ -17,7 +17,7 @@ FROM node:lts-alpine
 WORKDIR /app
 
 COPY package*.json .
-RUN npm ci --omit dev --ignore-scripts
+RUN npm i --omit dev --ignore-scripts
 
 # Иначе сыпится ошибка с отсутствием бинарников для sqlite
 RUN npm uninstall sqlite3

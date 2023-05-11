@@ -7,6 +7,6 @@
 		"forceConsistentCasingInFileNames": true,
 		"strict": true
 	},
-	"include": ["env.d.ts", "src/**/*"],
-  "exclude": ["dist"]
+	"include": ["env.d.ts", "./src/**/*"],
+	"exclude": ["dist"]
 }

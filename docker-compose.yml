@@ -1,35 +1,40 @@
 version: '3'
 services:
-  geth:
+  proxy:
+    image: nginx:alpine
+    ports:
+      - ${PORT}:80
+    volumes:
+      - ./configs/nginx:/etc/nginx/templates
+    networks:
+      geth-private-net:
+    depends_on:
+      - network
+      - contracts
+  network:
     env_file:
       - .env.production
-    build:
-      dockerfile: Dockerfile.ether
-      context: .
-      args:
-        - CLEF_PASSWORD=${CLEF_PASSWORD}
+    build: ./packages/network
     ports:
       - 8545:8545
       - 8546:8546
       - 30303:30303
     volumes:
       - geth-data:/root
-    container_name: geth
+    container_name: network
     restart: always
     networks:
       geth-private-net:
-  server:
+  contracts:
+    build: ./packages/contracts
     env_file:
       - .env.production
-    build:
-      dockerfile: Dockerfile.server
-      context: .
-    ports:
-      - ${PORT}:${PORT}
-    container_name: server
+    environment:
+      - PORT=5000
+    container_name: contracts
     restart: always
     depends_on:
-      - geth
+      - network
     networks:
       geth-private-net:
 
