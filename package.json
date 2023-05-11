@@ -1,0 +1,35 @@
+{
+	"name": "ether",
+	"version": "1.0.0",
+	"description": "",
+	"main": "./dist/index.js",
+	"type": "module",
+	"workspaces": [
+		"packages/*"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Bricks666/ether.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Bricks666/ether/issues"
+	},
+	"homepage": "https://github.com/Bricks666/ether#readme",
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^5.59.2",
+		"@typescript-eslint/parser": "^5.59.2",
+		"eslint": "^8.40.0",
+		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-plugin-import": "^2.27.5",
+		"eslint-plugin-sonarjs": "^0.19.0",
+		"husky": "^8.0.3",
+		"lint-staged": "^13.2.2",
+		"nodemon": "^2.0.22",
+		"prettier": "^2.8.8",
+		"typescript": "^5.0.4"
+	}
+}
