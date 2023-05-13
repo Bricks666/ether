@@ -1,8 +1,8 @@
 {
-	"name": "ether",
+	"name": "bricks-ether",
 	"version": "1.0.0",
 	"description": "",
-	"main": "./dist/index.js",
+  "private": false,
 	"type": "module",
 	"workspaces": [
 		"packages/*"

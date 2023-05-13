@@ -1,5 +1,5 @@
 {
-	"name": "@ether/server-utils",
+	"name": "@bricks-ether/server-utils",
 	"version": "1.0.0",
 	"description": "It's my complect of utils and useful things for simple express server",
 	"private": false,

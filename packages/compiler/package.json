@@ -1,5 +1,5 @@
 {
-	"name": "@ether/compiler",
+	"name": "@bricks-ether/compiler",
 	"version": "1.0.0",
 	"private": true,
 	"main": "./dist/index.js",
