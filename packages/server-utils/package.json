@@ -1,7 +1,11 @@
 {
 	"name": "@ether/server-utils",
 	"version": "1.0.0",
-	"description": "",
+	"description": "It's my complect of utils and useful things for simple express server",
+	"private": false,
+	"publishConfig": {
+		"access": "public"
+	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"type": "module",
@@ -11,9 +15,13 @@
 		"prettier": "prettier --write --config ./.prettierrc src",
 		"build": "rollup --config ./rollup.config.js"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"keywords": [
+		"server",
+		"express",
+		"errors",
+		"utils"
+	],
+	"author": "Bricks667",
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^24.1.0",
 		"@rollup/plugin-typescript": "^11.1.0",
