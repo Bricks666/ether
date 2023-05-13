@@ -1,11 +1,12 @@
-import solc from 'solc';
+import solc, { type CompileOutput, type CompileOptions } from 'solc';
 import { CompileResponseBody } from './types';
+import { outputHasErrors } from './lib';
 
 const FILE_NAME = 'file.sol';
 
 export class CompilerService {
 	async compile(content: string): Promise<CompileResponseBody> {
-		const complicator = {
+		const complicator: CompileOptions = {
 			language: 'Solidity',
 			sources: {
 				[FILE_NAME]: {
@@ -20,17 +21,17 @@ export class CompilerService {
 				},
 			},
 		};
-		const output = JSON.parse(solc.compile(JSON.stringify(complicator)));
+		const output: CompileOutput = JSON.parse(
+			solc.compile(JSON.stringify(complicator))
+		);
 
-		console.log(output);
+		const hasError = outputHasErrors(output.errors);
 
-		const error = checkErrors(output.errors);
-
-		if (error) {
-			return error;
+		if (hasError) {
+			throw output.errors;
 		}
 
-		const contracts = output.contracts[FILE_NAME] as Record<string, any>;
+		const contracts = output.contracts[FILE_NAME];
 
 		const result: CompileResponseBody = Object.entries(contracts).reduce(
 			(reduced, [key, value]) => {
@@ -46,16 +47,5 @@ export class CompilerService {
 		return result;
 	}
 }
-
-const checkErrors = (errors: any[]): any => {
-	// eslint-disable-next-line no-restricted-syntax
-	for (const error of errors) {
-		if (error.type !== 'Waring') {
-			return error;
-		}
-	}
-
-	return null;
-};
 
 export const compilerService = new CompilerService();
