@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
+import { AbiItem } from 'web3-utils';
+import { filesIsObject } from '../shared/lib';
 import { ContractsService, contractsService } from './service';
 import {
 	DeployRequestBody,
 	DeployedResponseBody,
+	FileDeployRequestBody,
 	GetByNameParams
 } from './types';
 import { ContractRow } from './repository';
@@ -45,8 +48,39 @@ class ContractsController {
 		return res.status(201).json(contractRow);
 	}
 
-	async deployByFile() {
-		return null;
+	async deployByFile(
+		req: Request<unknown, DeployedResponseBody, FileDeployRequestBody>,
+		res: Response<DeployedResponseBody>
+	) {
+		if (!filesIsObject(req.files)) {
+			return res.status(400).json({ error: 'files should be object', } as any);
+		}
+		const { abi, bytecode, } = req.files;
+		const { senderAddress, senderIndex, ...rest } = req.body;
+		const abiContent = JSON.parse(abi[0].buffer.toString()) as AbiItem[];
+		const bytecodeContent = bytecode[0].buffer.toString();
+
+		let contractRow: ContractRow;
+
+		if (senderAddress !== undefined) {
+			contractRow = await this.#contractsService.deployByAddress({
+				...rest,
+				abi: abiContent,
+				bytecode: bytecodeContent,
+				senderAddress,
+			});
+		} else if (senderIndex !== undefined) {
+			contractRow = await this.#contractsService.deployByIndex({
+				...rest,
+				abi: abiContent,
+				bytecode: bytecodeContent,
+				senderIndex,
+			});
+		} else {
+			return res.status(400).send();
+		}
+
+		return res.status(201).json(contractRow);
 	}
 
 	compileAndDeploy() {

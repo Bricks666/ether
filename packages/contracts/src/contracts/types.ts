@@ -21,7 +21,10 @@ export type DeployRequestBody =
 	| AddressDeployRequestBody
 	| IndexDeployRequestBody;
 
+export type FileDeployRequestBody = Omit<DeployRequestBody, 'abi' | 'bytecode'>;
+
 export interface DeployedResponseBody {
+	readonly name: string;
 	readonly address: string;
 }
 

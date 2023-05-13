@@ -2,9 +2,9 @@
 
 declare namespace NodeJS {
 	interface ProcessEnv {
-		readonly PORT: string;
 		readonly NODE_HOST: string;
 		readonly DB_FILE: string;
+		readonly COMPILER_HOST: string;
 	}
 
 	interface Process {
