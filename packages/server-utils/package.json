@@ -1,0 +1,25 @@
+{
+	"name": "@ether/server-utils",
+	"version": "1.0.0",
+	"description": "",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"type": "module",
+	"scripts": {
+		"lint": "eslint --ext .ts src/",
+		"lint:fix": "eslint --ext .ts src/ --fix",
+		"prettier": "prettier --write --config ./.prettierrc src",
+		"build": "rollup --config ./rollup.config.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@rollup/plugin-commonjs": "^24.1.0",
+		"@rollup/plugin-typescript": "^11.1.0",
+		"@types/express": "^4.17.17",
+		"@types/node": "^20.1.0",
+		"rollup": "^3.21.5",
+		"tslib": "^2.5.0"
+	}
+}
