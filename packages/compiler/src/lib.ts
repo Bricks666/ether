@@ -1,3 +1,4 @@
+import { type BinaryLike, createHash } from 'crypto';
 import type { CompileError } from 'solc';
 
 export const outputHasErrors = (
@@ -15,4 +16,9 @@ export const outputHasErrors = (
 	}
 
 	return false;
+};
+
+export const hash = (data: BinaryLike): string => {
+	const hasher = createHash('sha256');
+	return hasher.update(data).digest('hex');
 };

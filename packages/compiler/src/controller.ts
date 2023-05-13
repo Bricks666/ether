@@ -14,9 +14,9 @@ export class CompilerController {
 		if (!content) {
 			return res.status(400).json({ error: 'empty', });
 		}
-		const contractData = await this.#compilerService.compile(content);
+		const contracts = await this.#compilerService.compile(content);
 
-		res.json(contractData);
+		res.json({ contracts, });
 	}
 }
 

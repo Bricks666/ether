@@ -6,5 +6,7 @@ export interface CompiledContractData {
 }
 
 export interface CompileResponseBody {
-	readonly contracts: Record<string, CompiledContractData>;
+	readonly contracts: CompiledContracts;
 }
+
+export type CompiledContracts = Record<string, CompiledContractData>;
