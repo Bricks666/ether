@@ -1,6 +1,6 @@
 {
 	"name": "@bricks-ether/server-utils",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "It's my complect of utils and useful things for simple express server",
 	"private": false,
 	"publishConfig": {
@@ -29,5 +29,11 @@
 		"@types/node": "^20.1.0",
 		"rollup": "^3.21.5",
 		"tslib": "^2.5.0"
+	},
+	"peerDependencies": {
+		"express-validator": "^7.0.1"
+	},
+	"dependencies": {
+		"multer": "^1.4.5-lts.1"
 	}
 }

@@ -9,6 +9,6 @@
 		"declaration": true,
     "declarationDir": "./dist"
 	},
-	"include": ["env.d.ts", "./src/**/*"],
+	"include": ["./src/**/*"],
 	"exclude": ["dist"]
 }
