@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import solc, { type CompileOutput, type CompileOptions } from 'solc';
+import { BadRequestError } from '@bricks-ether/server-utils';
 import { CompiledContracts } from './types';
 import { hash, outputHasErrors } from './lib';
 import { FILE_NAME, STATIC_DIR } from './config';
@@ -8,27 +9,27 @@ import { FILE_NAME, STATIC_DIR } from './config';
 export class CompilerService {
 	async compile(contract: string): Promise<CompiledContracts> {
 		const fileName = hash(contract);
-		const data = await getCompiledData(fileName);
+		let data = await getCompiledData(fileName);
 
-		if (data) {
-			return extractCompiledContracts(data);
+		if (!data) {
+			const complicator: CompileOptions = createCompileOptions(contract);
+
+			data = JSON.parse(
+				solc.compile(JSON.stringify(complicator))
+			) as CompileOutput;
+
+			await saveCompiledData(fileName, data);
 		}
 
-		const complicator: CompileOptions = createCompileOptions(contract);
-
-		const compiled: CompileOutput = JSON.parse(
-			solc.compile(JSON.stringify(complicator))
-		);
-
-		await saveCompiledData(fileName, compiled);
-
-		const hasError = outputHasErrors(compiled.errors);
+		const hasError = outputHasErrors(data.errors);
 
 		if (hasError) {
-			throw compiled.errors;
+			throw new BadRequestError({
+				cause: data.errors,
+			});
 		}
 
-		return extractCompiledContracts(compiled);
+		return extractCompiledContracts(data);
 	}
 }
 

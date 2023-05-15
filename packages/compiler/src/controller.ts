@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { CompilerService, compilerService } from './service';
+import { type CompilerService, compilerService } from './service';
+import type { NextFunction, Request, Response } from 'express';
 
 export class CompilerController {
 	#compilerService: CompilerService;
@@ -8,15 +8,16 @@ export class CompilerController {
 		this.#compilerService = compilerService;
 	}
 
-	async compile(req: Request, res: Response) {
-		const content = req.file?.buffer.toString();
+	async compile(req: Request, res: Response, next: NextFunction) {
+		try {
+			const content = req.file!.buffer.toString();
 
-		if (!content) {
-			return res.status(400).json({ error: 'empty', });
+			const contracts = await this.#compilerService.compile(content);
+
+			res.json({ contracts, });
+		} catch (error) {
+			next(error);
 		}
-		const contracts = await this.#compilerService.compile(content);
-
-		res.json({ contracts, });
 	}
 }
 

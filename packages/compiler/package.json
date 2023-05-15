@@ -25,9 +25,11 @@
 	},
 	"homepage": "https://github.com/Bricks666/ether#readme",
 	"dependencies": {
+		"@bricks-ether/server-utils": "^1.1.0",
 		"cors": "^2.8.5",
 		"dotenv": "^16.0.3",
 		"express": "^4.18.2",
+		"express-validator": "^7.0.1",
 		"multer": "^1.4.5-lts.1",
 		"solc": "^0.8.20"
 	},

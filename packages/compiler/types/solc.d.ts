@@ -41,7 +41,7 @@ declare module 'solc' {
 		extends CompileErrorSourceLocation {
 		readonly message: string;
 	}
-	export type CompileErrorType = 'Error' | 'Warning';
+	export type CompileErrorType = 'Error' | 'Warning' | 'ParserError';
 
 	export interface CompileError {
 		readonly component: CompileErrorComponent;
