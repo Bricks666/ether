@@ -22,4 +22,5 @@ app.listen(PORT, async () => {
 	web3Service.setProvider(process.env.NODE_HOST);
 	databaseService.config.filename = process.env.DB_FILE;
 	await databaseService.open();
+	console.log(`contracts service starts on port: ${PORT}`);
 });

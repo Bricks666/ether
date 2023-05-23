@@ -55,7 +55,7 @@ export class ContractsService {
 				cause: existingContract,
 			});
 		}
-		console.log(bytecode, abi);
+
 		const web3Contract = new this.#web3Service.eth.Contract(abi);
 		const response = await web3Contract
 			.deploy({ data: bytecode, arguments: contractsArgs })

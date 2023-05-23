@@ -1,24 +1,28 @@
+import { resolve } from 'node:path';
 import { type BinaryLike, createHash } from 'crypto';
-import type { CompileError } from 'solc';
-
-export const outputHasErrors = (
-	errors: CompileError[],
-	ignoreWarning = true
-): boolean => {
-	// eslint-disable-next-line no-restricted-syntax
-	for (const error of errors) {
-		if (error.type === 'Warning' && !ignoreWarning) {
-			return true;
-		}
-		if (error.type.includes('Error')) {
-			return true;
-		}
-	}
-
-	return false;
-};
+import createMulter, { memoryStorage } from 'multer';
+import { STATIC_DIR } from './config';
+import { mkdir } from 'node:fs/promises';
 
 export const hash = (data: BinaryLike): string => {
 	const hasher = createHash('sha256');
 	return hasher.update(data).digest('hex');
+};
+
+export const multer = createMulter({
+	storage: memoryStorage(),
+});
+
+const dirs = [STATIC_DIR];
+
+export const addStaticDir = (path: string): string => {
+	const dir = resolve(STATIC_DIR, path);
+	dirs.push(dir);
+	return dir;
+};
+
+export const initStaticDirs = async () => {
+	const requests = dirs.map((dir) => mkdir(dir, { recursive: true }));
+
+	return Promise.all(requests);
 };

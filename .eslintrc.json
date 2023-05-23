@@ -25,6 +25,7 @@
 	"rules": {
 		/* STANDARD */
 		"no-use-before-define": "off",
+		"no-restricted-syntax": "off",
 		"no-tabs": "off",
 		"indent": [
 			"error",
