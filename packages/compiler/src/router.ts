@@ -1,4 +1,9 @@
+import {
+	checkValidateErrors,
+	filesValidators
+} from '@bricks-ether/server-utils';
 import { Router } from 'express';
+import { body } from 'express-validator';
 import { multer } from './multer';
 import { compilerController } from './controller';
 
@@ -11,5 +16,7 @@ compilerRouter.get('/ping', async (_, res) => {
 compilerRouter.post(
 	'/compile',
 	multer.single('file'),
+	body('file').custom(filesValidators.existsSingle),
+	checkValidateErrors(),
 	compilerController.compile.bind(compilerController)
 );
