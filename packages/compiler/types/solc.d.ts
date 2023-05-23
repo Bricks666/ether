@@ -2,9 +2,17 @@ declare module 'solc' {
 	import type { AbiItem } from 'web3-utils';
 
 	// METHODS
+	interface Module {
+		compile(options: string): string;
+		loadRemoteVersion(
+			version: string,
+			callback: (error: null | Error, compiler: Module | null) => void
+		): void;
+	}
 
-	// COMPILE
-	export function compile(options: string): string;
+	const module: Module;
+
+	export default module;
 
 	// Options
 	export type CompileLanguage = 'Solidity';
@@ -13,8 +21,13 @@ declare module 'solc' {
 	}
 	export interface CompileOptionsSettings {
 		readonly outputSelection: Record<string, CompileOptionsOutputSelection>;
+		readonly optimizer: object;
 	}
 	export type CompileOptionsOutputSelection = Record<string, any>;
+	export interface CompileOptionsOptimizer {
+		readonly enabled?: boolean;
+		readonly runs?: number;
+	}
 
 	export interface CompileOptions {
 		readonly language: CompileLanguage;

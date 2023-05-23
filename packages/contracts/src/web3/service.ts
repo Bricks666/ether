@@ -1,3 +1,4 @@
+import { NotFoundError } from '@bricks-ether/server-utils';
 import Web3 from 'web3';
 
 export class Web3Service extends Web3 {
@@ -10,7 +11,9 @@ export class Web3Service extends Web3 {
 		const account = accounts.at(index);
 
 		if (!account) {
-			throw new Error('Not found');
+			throw new NotFoundError({
+				message: `Account under index ${index} not found`,
+			});
 		}
 
 		return account;

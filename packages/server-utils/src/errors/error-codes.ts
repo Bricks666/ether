@@ -1,4 +1,34 @@
-export const HTTPCodes = {
+export const InformationHTTPCodes = {
+	Continue: 100,
+	SwitchingProtocols: 101,
+	Processing: 102,
+	EarlyHints: 103,
+};
+
+export const SuccessfulHTTPCodes = {
+	OK: 200,
+	Created: 201,
+	Accepted: 202,
+	NonAuthoritativeInformation: 203,
+	NoContent: 204,
+	ResetContent: 205,
+	PartialContent: 206,
+	MultiStatus: 207,
+	AlreadyReported: 208,
+	IMUsed: 226,
+};
+
+export const RedirectionHTTPCodes = {
+	MultipleChoices: 300,
+	MovedPermanently: 301,
+	Found: 302,
+	SeeOther: 303,
+	NotModified: 304,
+	TemporaryRedirect: 307,
+	PermanentRedirect: 308,
+};
+
+export const ClientErrorsHTTPCodes = {
 	BadRequest: 400,
 	Unauthorized: 401,
 	PaymentRequired: 402,
@@ -28,6 +58,9 @@ export const HTTPCodes = {
 	TooManyRequests: 429,
 	RequestHeaderFieldsTooLarge: 431,
 	UnavailableForLegalReasons: 451,
+};
+
+export const ServerErrorsHTTPCodes = {
 	InternalServerError: 500,
 	NotImplemented: 501,
 	BadGateway: 502,
@@ -40,4 +73,12 @@ export const HTTPCodes = {
 	BandwidthLimitExceeded: 509,
 	NotExtended: 510,
 	NetworkAuthenticationRequired: 511,
+};
+
+export const HTTPCodes = {
+	...InformationHTTPCodes,
+	...SuccessfulHTTPCodes,
+	...RedirectionHTTPCodes,
+	...ClientErrorsHTTPCodes,
+	...ServerErrorsHTTPCodes,
 };

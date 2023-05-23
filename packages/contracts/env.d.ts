@@ -5,6 +5,7 @@ declare namespace NodeJS {
 		readonly NODE_HOST: string;
 		readonly DB_FILE: string;
 		readonly COMPILER_HOST: string;
+		readonly PORT?: string;
 	}
 
 	interface Process {

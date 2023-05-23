@@ -7,9 +7,6 @@
 	"scripts": {
 		"start": "node ./index.js",
 		"dev": "nodemon ./dist/index.js",
-		"lint": "eslint --ext .ts src/",
-		"lint:fix": "eslint --ext .ts src/ --fix",
-		"prettier": "prettier --write --config ./.prettierrc src",
 		"watch": "rollup --config ./rollup.config.js --watch",
 		"build": "rollup --config ./rollup.config.js"
 	},
@@ -34,7 +31,8 @@
 		"sqlite3": "^5.1.6",
 		"web3": "^1.9.0",
 		"web3-core": "^1.9.0",
-		"web3-utils": "^1.9.0"
+		"web3-utils": "^1.9.0",
+		"@bricks-ether/server-utils": "^1.1.5"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^24.1.0",

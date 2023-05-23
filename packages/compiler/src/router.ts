@@ -4,14 +4,10 @@ import {
 } from '@bricks-ether/server-utils';
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { multer } from './multer';
+import { multer } from './lib';
 import { compilerController } from './controller';
 
 export const compilerRouter = Router();
-
-compilerRouter.get('/ping', async (_, res) => {
-	res.json('pong');
-});
 
 compilerRouter.post(
 	'/compile',

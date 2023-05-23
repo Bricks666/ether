@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { AbiItem } from 'web3-utils';
-import { filesIsObject } from '../shared/lib';
+import { BadRequestError, HTTPCodes } from '@bricks-ether/server-utils';
 import { ContractsService, contractsService } from './service';
 import {
+	CompileAndDeployRequestBody,
 	DeployRequestBody,
 	DeployedResponseBody,
 	FileDeployRequestBody,
@@ -17,74 +18,126 @@ class ContractsController {
 		this.#contractsService = contractsService;
 	}
 
-	async getByName(req: Request<GetByNameParams>, res: Response<ContractRow>) {
-		const { name, } = req.params;
-		const contractRow = await this.#contractsService.getByName({ name, });
-		return res.json(contractRow);
+	async getByName(
+		req: Request<GetByNameParams>,
+		res: Response<ContractRow>,
+		next: NextFunction
+	) {
+		try {
+			const { name, } = req.params;
+			const contractRow = await this.#contractsService.getByName({ name, });
+			return res.json(contractRow);
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async deploy(
 		req: Request<unknown, DeployedResponseBody, DeployRequestBody>,
-		res: Response<DeployedResponseBody>
+		res: Response<DeployedResponseBody>,
+		next: NextFunction
 	) {
-		const { senderAddress, senderIndex, ...params } = req.body;
+		try {
+			const { senderAddress, senderIndex, ...params } = req.body;
 
-		let contractRow: ContractRow;
+			let contractRow: ContractRow;
 
-		if (senderAddress !== undefined) {
-			contractRow = await this.#contractsService.deployByAddress({
-				...params,
-				senderAddress,
-			});
-		} else if (senderIndex !== undefined) {
-			contractRow = await this.#contractsService.deployByIndex({
-				...params,
-				senderIndex,
-			});
-		} else {
-			return res.status(400).send();
+			if (senderAddress !== undefined) {
+				contractRow = await this.#contractsService.deployByAddress({
+					...params,
+					senderAddress,
+				});
+			} else {
+				contractRow = await this.#contractsService.deployByIndex({
+					...params,
+					senderIndex,
+				});
+			}
+			return res.status(HTTPCodes.Created).json(contractRow);
+		} catch (error) {
+			next(error);
 		}
-
-		return res.status(201).json(contractRow);
 	}
 
 	async deployByFile(
 		req: Request<unknown, DeployedResponseBody, FileDeployRequestBody>,
-		res: Response<DeployedResponseBody>
+		res: Response<DeployedResponseBody>,
+		next: NextFunction
 	) {
-		if (!filesIsObject(req.files)) {
-			return res.status(400).json({ error: 'files should be object', } as any);
+		try {
+			const { abi, bytecode, } = req.files as any;
+			const { senderAddress, senderIndex, ...rest } = req.body;
+			const abiContent = JSON.parse(abi[0].buffer.toString()) as AbiItem[];
+			const bytecodeContent = bytecode[0].buffer.toString();
+
+			let contractRow: ContractRow;
+
+			if (senderAddress) {
+				contractRow = await this.#contractsService.deployByAddress({
+					...rest,
+					abi: abiContent,
+					bytecode: bytecodeContent,
+					senderAddress,
+				});
+			} else {
+				contractRow = await this.#contractsService.deployByIndex({
+					...rest,
+					abi: abiContent,
+					bytecode: bytecodeContent,
+					senderIndex: senderIndex!,
+				});
+			}
+
+			return res.status(HTTPCodes.Created).json(contractRow);
+		} catch (error) {
+			next(error);
 		}
-		const { abi, bytecode, } = req.files;
-		const { senderAddress, senderIndex, ...rest } = req.body;
-		const abiContent = JSON.parse(abi[0].buffer.toString()) as AbiItem[];
-		const bytecodeContent = bytecode[0].buffer.toString();
-
-		let contractRow: ContractRow;
-
-		if (senderAddress !== undefined) {
-			contractRow = await this.#contractsService.deployByAddress({
-				...rest,
-				abi: abiContent,
-				bytecode: bytecodeContent,
-				senderAddress,
-			});
-		} else if (senderIndex !== undefined) {
-			contractRow = await this.#contractsService.deployByIndex({
-				...rest,
-				abi: abiContent,
-				bytecode: bytecodeContent,
-				senderIndex,
-			});
-		} else {
-			return res.status(400).send();
-		}
-
-		return res.status(201).json(contractRow);
 	}
 
-	compileAndDeploy() {
-		return null;
+	async compileAndDeploy(
+		req: Request<unknown, DeployedResponseBody, CompileAndDeployRequestBody>,
+		res: Response<DeployedResponseBody>,
+		next: NextFunction
+	) {
+		try {
+			const contract = req.file!;
+			const { contractNameInFile, senderAddress, senderIndex, ...rest } =
+				req.body;
+
+			const compiledContracts = await this.#contractsService.compile(contract);
+
+			const deployContract = compiledContracts[contractNameInFile];
+
+			if (!deployContract) {
+				throw new BadRequestError({
+					message: `Contract with name ${contractNameInFile} doesn't exist in passed file`,
+				});
+			}
+
+			const { abi, bytecode, } = deployContract;
+
+			let contractRow: ContractRow;
+
+			if (senderAddress) {
+				contractRow = await this.#contractsService.deployByAddress({
+					...rest,
+					abi,
+					bytecode,
+					senderAddress,
+				});
+			} else {
+				contractRow = await this.#contractsService.deployByIndex({
+					...rest,
+					abi,
+					bytecode,
+					senderIndex: senderIndex!,
+				});
+			}
+
+			return res.status(HTTPCodes.Created).json(contractRow);
+		} catch (error) {
+			next(error);
+		}
 	}
 }
 

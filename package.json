@@ -2,11 +2,17 @@
 	"name": "bricks-ether",
 	"version": "1.0.0",
 	"description": "",
-  "private": false,
+	"private": false,
 	"type": "module",
 	"workspaces": [
 		"packages/*"
 	],
+	"scripts": {
+		"lint": "eslint --ext .ts packages/",
+		"lint:fix": "eslint --ext .ts packages/ --fix",
+		"prettier": "prettier --write --config ./.prettierrc packages",
+		"prepare": "husky install"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Bricks666/ether.git"

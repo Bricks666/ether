@@ -23,6 +23,17 @@ export type DeployRequestBody =
 
 export type FileDeployRequestBody = Omit<DeployRequestBody, 'abi' | 'bytecode'>;
 
+export interface CompileAndDeployRequestBody extends FileDeployRequestBody {
+	readonly contractNameInFile: string;
+}
+
+export interface CompiledContract {
+	readonly abi: AbiItem[];
+	readonly bytecode: string;
+}
+
+export type CompileResponse = Record<string, CompiledContract>;
+
 export interface DeployedResponseBody {
 	readonly name: string;
 	readonly address: string;
