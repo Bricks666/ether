@@ -1,9 +1,9 @@
 import { type CompilerService, compilerService } from './compiler';
-import type { NextFunction, Request, Response } from 'express';
 import {
 	compilerVersionService,
-	type CompilerVersionService,
+	type CompilerVersionService
 } from './versions';
+import type { NextFunction, Request, Response } from 'express';
 
 export class CompilerController {
 	#compilerService: CompilerService;
@@ -24,7 +24,7 @@ export class CompilerController {
 
 			const contracts = await this.#compilerService.compile(content);
 
-			res.json({ contracts });
+			res.json({ contracts, });
 		} catch (error) {
 			next(error);
 		}

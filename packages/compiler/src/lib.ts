@@ -1,8 +1,8 @@
 import { resolve } from 'node:path';
 import { type BinaryLike, createHash } from 'crypto';
+import { mkdir } from 'node:fs/promises';
 import createMulter, { memoryStorage } from 'multer';
 import { STATIC_DIR } from './config';
-import { mkdir } from 'node:fs/promises';
 
 export const hash = (data: BinaryLike): string => {
 	const hasher = createHash('sha256');
@@ -22,7 +22,7 @@ export const addStaticDir = (path: string): string => {
 };
 
 export const initStaticDirs = async () => {
-	const requests = dirs.map((dir) => mkdir(dir, { recursive: true }));
+	const requests = dirs.map((dir) => mkdir(dir, { recursive: true, }));
 
 	return Promise.all(requests);
 };

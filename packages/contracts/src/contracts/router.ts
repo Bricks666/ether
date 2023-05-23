@@ -1,7 +1,7 @@
 import {
 	checkValidateErrors,
 	createErrorHandler,
-	filesValidators,
+	filesValidators
 } from '@bricks-ether/server-utils';
 import { Router } from 'express';
 import { body, oneOf, param } from 'express-validator';
@@ -20,7 +20,7 @@ contractsRouter.post(
 	'/deploy',
 	oneOf([
 		body('senderAddress').isString().trim().notEmpty().isEthereumAddress(),
-		body('senderIndex').toInt().isNumeric(),
+		body('senderIndex').toInt().isNumeric()
 	]),
 	body('abi').isJSON().notEmpty(),
 	body('bytecode').isString().trim().notEmpty(),
@@ -32,8 +32,8 @@ contractsRouter.post(
 contractsRouter.post(
 	'/deploy/files',
 	multer.fields([
-		{ name: 'abi', maxCount: 1 },
-		{ name: 'bytecode', maxCount: 1 },
+		{ name: 'abi', maxCount: 1, },
+		{ name: 'bytecode', maxCount: 1, }
 	]),
 	body('abi').custom(filesValidators.objectExistFile),
 	body('bytecode').custom(filesValidators.objectExistFile),

@@ -2,7 +2,7 @@ import { BadRequestError } from '@bricks-ether/server-utils';
 import { hash } from '../lib';
 import {
 	type CompilerVersionService,
-	compilerVersionService,
+	compilerVersionService
 } from '../versions';
 import {
 	createCompileOptions,
@@ -10,7 +10,7 @@ import {
 	getCompiledData,
 	loadVersion,
 	outputHasErrors,
-	saveCompiledData,
+	saveCompiledData
 } from './lib';
 import type { CompileOutput, CompileOptions } from 'solc';
 import type { CompiledContracts } from './types';

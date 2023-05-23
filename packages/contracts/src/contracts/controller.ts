@@ -1,17 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { AbiItem } from 'web3-utils';
-import {
-	BadRequestError,
-	HTTPCodes,
-	filesValidators,
-} from '@bricks-ether/server-utils';
+import { BadRequestError, HTTPCodes } from '@bricks-ether/server-utils';
 import { ContractsService, contractsService } from './service';
 import {
 	CompileAndDeployRequestBody,
 	DeployRequestBody,
 	DeployedResponseBody,
 	FileDeployRequestBody,
-	GetByNameParams,
+	GetByNameParams
 } from './types';
 import { ContractRow } from './repository';
 
@@ -28,8 +24,8 @@ class ContractsController {
 		next: NextFunction
 	) {
 		try {
-			const { name } = req.params;
-			const contractRow = await this.#contractsService.getByName({ name });
+			const { name, } = req.params;
+			const contractRow = await this.#contractsService.getByName({ name, });
 			return res.json(contractRow);
 		} catch (error) {
 			next(error);
@@ -69,7 +65,7 @@ class ContractsController {
 		next: NextFunction
 	) {
 		try {
-			const { abi, bytecode } = req.files as any;
+			const { abi, bytecode, } = req.files as any;
 			const { senderAddress, senderIndex, ...rest } = req.body;
 			const abiContent = JSON.parse(abi[0].buffer.toString()) as AbiItem[];
 			const bytecodeContent = bytecode[0].buffer.toString();
@@ -118,7 +114,7 @@ class ContractsController {
 				});
 			}
 
-			const { abi, bytecode } = deployContract;
+			const { abi, bytecode, } = deployContract;
 
 			let contractRow: ContractRow;
 

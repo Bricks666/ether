@@ -1,11 +1,11 @@
+import { readFile, access, writeFile, constants } from 'node:fs/promises';
 import { BadRequestError } from '@bricks-ether/server-utils';
 import { maxSatisfying } from 'semver';
-import { readFile, access, writeFile, constants } from 'node:fs/promises';
 import {
 	PreparedVersions,
 	extractVersionRange,
 	getSolidityCompilerVersions,
-	prepareVersions,
+	prepareVersions
 } from './lib';
 import { VERSIONS_PATH } from './config';
 

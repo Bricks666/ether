@@ -1,19 +1,19 @@
 import {
 	ConflictError,
 	InternalServerErrorError,
-	NotFoundError,
+	NotFoundError
 } from '@bricks-ether/server-utils';
 import { Web3Service, web3Service } from '../web3';
 import {
 	ContractRow,
 	ContractsRepository,
-	contractsRepository,
+	contractsRepository
 } from './repository';
 import {
 	AddressDeployRequestBody,
 	CompileResponse,
 	GetByNameParams,
-	IndexDeployRequestBody,
+	IndexDeployRequestBody
 } from './types';
 
 export class ContractsService {
@@ -43,7 +43,7 @@ export class ContractsService {
 	async deployByAddress(
 		params: AddressDeployRequestBody
 	): Promise<ContractRow> {
-		const { abi, name, senderAddress, bytecode, contractsArgs } = params;
+		const { abi, name, senderAddress, bytecode, contractsArgs, } = params;
 
 		const existingContract = await this.#contractsRepository.getByName({
 			name,
@@ -58,11 +58,11 @@ export class ContractsService {
 
 		const web3Contract = new this.#web3Service.eth.Contract(abi);
 		const response = await web3Contract
-			.deploy({ data: bytecode, arguments: contractsArgs })
-			.send({ from: senderAddress });
+			.deploy({ data: bytecode, arguments: contractsArgs, })
+			.send({ from: senderAddress, });
 
-		const { address } = response.options;
-		return this.#contractsRepository.create({ address, name });
+		const { address, } = response.options;
+		return this.#contractsRepository.create({ address, name, });
 	}
 
 	async deployByIndex(params: IndexDeployRequestBody): Promise<ContractRow> {
@@ -70,7 +70,7 @@ export class ContractsService {
 		const senderAddress = await this.#web3Service.getAccountByIndex(
 			senderIndex
 		);
-		return this.deployByAddress({ ...rest, senderAddress });
+		return this.deployByAddress({ ...rest, senderAddress, });
 	}
 
 	async compile(

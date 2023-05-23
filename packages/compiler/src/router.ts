@@ -1,6 +1,6 @@
 import {
 	checkValidateErrors,
-	filesValidators,
+	filesValidators
 } from '@bricks-ether/server-utils';
 import { Router } from 'express';
 import { body } from 'express-validator';

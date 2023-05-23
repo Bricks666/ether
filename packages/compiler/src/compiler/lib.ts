@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
-import solc from 'solc'
+import solc from 'solc';
 import { CONTRACT_NAME, COMPILED_DIR } from './config';
 import type { CompileError, CompileOptions, CompileOutput } from 'solc';
 import type { CompiledContracts } from './types';
@@ -73,4 +73,4 @@ export const saveCompiledData = async (
 	return writeFile(join(COMPILED_DIR, fileName), JSON.stringify(compiledData));
 };
 
-			export const loadVersion = promisify(solc.loadRemoteVersion);
+export const loadVersion = promisify(solc.loadRemoteVersion);

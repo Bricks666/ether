@@ -7,9 +7,6 @@
 	"scripts": {
 		"start": "node ./index.js",
 		"dev": "nodemon ./dist/index.js",
-		"lint": "eslint --ext .ts src/",
-		"lint:fix": "eslint --ext .ts src/ --fix",
-		"prettier": "prettier --write --config ./.prettierrc src",
 		"watch": "rollup --config ./rollup.config.js --watch",
 		"build": "rollup --config ./rollup.config.js"
 	},
