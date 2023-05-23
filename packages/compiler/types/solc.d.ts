@@ -13,8 +13,13 @@ declare module 'solc' {
 	}
 	export interface CompileOptionsSettings {
 		readonly outputSelection: Record<string, CompileOptionsOutputSelection>;
+		readonly optimizer: object;
 	}
 	export type CompileOptionsOutputSelection = Record<string, any>;
+	export interface CompileOptionsOptimizer {
+		readonly enabled?: boolean;
+		readonly runs?: number;
+	}
 
 	export interface CompileOptions {
 		readonly language: CompileLanguage;

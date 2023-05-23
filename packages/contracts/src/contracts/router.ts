@@ -22,7 +22,7 @@ contractsRouter.post(
 		body('senderAddress').isString().trim().notEmpty().isEthereumAddress(),
 		body('senderIndex').toInt().isNumeric(),
 	]),
-	body('abi').isJSON().trim().notEmpty(),
+	body('abi').isJSON().notEmpty(),
 	body('bytecode').isString().trim().notEmpty(),
 	body('name').isString().trim().notEmpty(),
 	body('contractsArgs').optional().isArray(),
@@ -47,6 +47,7 @@ contractsRouter.post(
 	multer.single('contract'),
 	body('contract').custom(filesValidators.existsSingle),
 	body('name').isString().trim().notEmpty(),
+	body('contractNameInFile').isString().trim().notEmpty(),
 	body('contractsArgs').optional().isArray(),
 	checkValidateErrors(),
 	contractsController.compileAndDeploy.bind(contractsController)

@@ -1,4 +1,8 @@
-import { ConflictError, NotFoundError } from '@bricks-ether/server-utils';
+import {
+	ConflictError,
+	InternalServerErrorError,
+	NotFoundError,
+} from '@bricks-ether/server-utils';
 import { Web3Service, web3Service } from '../web3';
 import {
 	ContractRow,
@@ -7,6 +11,7 @@ import {
 } from './repository';
 import {
 	AddressDeployRequestBody,
+	CompileResponse,
 	GetByNameParams,
 	IndexDeployRequestBody,
 } from './types';
@@ -50,7 +55,7 @@ export class ContractsService {
 				cause: existingContract,
 			});
 		}
-
+		console.log(bytecode, abi);
 		const web3Contract = new this.#web3Service.eth.Contract(abi);
 		const response = await web3Contract
 			.deploy({ data: bytecode, arguments: contractsArgs })
@@ -68,9 +73,28 @@ export class ContractsService {
 		return this.deployByAddress({ ...rest, senderAddress });
 	}
 
-	// Может вынести в микросервис, который компилирует и возвращает байткод с аби
-	compile() {
-		return null;
+	async compile(
+		contract: globalThis.Express.Multer.File
+	): Promise<CompileResponse> {
+		const formData = new FormData();
+
+		const file = new Blob([contract.buffer]);
+
+		formData.append('file', file);
+
+		const result = await fetch(`${process.env.COMPILER_HOST}/api/compile`, {
+			body: formData,
+			mode: 'cors',
+			method: 'POST',
+		});
+
+		if (!result.ok) {
+			throw new InternalServerErrorError({
+				cause: await result.json(),
+			});
+		}
+
+		return result.json().then((result) => result.contracts);
 	}
 }
 

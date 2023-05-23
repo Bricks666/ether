@@ -7,7 +7,6 @@ export const outputHasErrors = (
 ): boolean => {
 	// eslint-disable-next-line no-restricted-syntax
 	for (const error of errors) {
-		console.log(errors);
 		if (error.type === 'Warning' && !ignoreWarning) {
 			return true;
 		}

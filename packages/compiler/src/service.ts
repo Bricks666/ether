@@ -47,6 +47,10 @@ const createCompileOptions = (content: string): CompileOptions => {
 					'*': ['*'],
 				},
 			},
+			optimizer: {
+				enabled: true,
+				runs: 100,
+			},
 		},
 	};
 };
@@ -55,7 +59,6 @@ const extractCompiledContracts = (
 	compiled: CompileOutput
 ): CompiledContracts => {
 	const contracts = compiled.contracts[FILE_NAME];
-
 	return Object.entries(contracts).reduce((reduced, [key, value]) => {
 		reduced[key] = {
 			abi: value.abi,
@@ -68,7 +71,7 @@ const extractCompiledContracts = (
 const getCompiledData = async (
 	fileName: string
 ): Promise<CompileOutput | null> => {
-	return readFile(join(STATIC_DIR, fileName), { encoding: 'utf-8', })
+	return readFile(join(STATIC_DIR, fileName), { encoding: 'utf-8' })
 		.then((data) => JSON.parse(data))
 		.catch(() => null);
 };
