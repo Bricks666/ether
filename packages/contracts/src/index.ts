@@ -4,6 +4,7 @@ import cors from 'cors';
 import { contractsRouter } from './contracts';
 import { web3Service } from './web3';
 import { databaseService } from './database';
+import { createErrorHandler } from '@bricks-ether/server-utils';
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ const app = express();
 app.use(json(), cors());
 
 app.use('/api', contractsRouter);
+
+app.use(createErrorHandler());
 
 app.listen(5000, async () => {
 	web3Service.setProvider(process.env.NODE_HOST!);

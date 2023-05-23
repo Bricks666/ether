@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AbiItem } from 'web3-utils';
-import { filesIsObject } from '../shared/lib';
+import { filesValidators } from '@bricks-ether/server-utils';
 import { ContractsService, contractsService } from './service';
 import {
 	DeployRequestBody,
@@ -52,7 +52,7 @@ class ContractsController {
 		req: Request<unknown, DeployedResponseBody, FileDeployRequestBody>,
 		res: Response<DeployedResponseBody>
 	) {
-		if (!filesIsObject(req.files)) {
+		if (!filesValidators.isObject(req.files)) {
 			return res.status(400).json({ error: 'files should be object', } as any);
 		}
 		const { abi, bytecode, } = req.files;

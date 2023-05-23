@@ -1,13 +1,14 @@
+import { ConflictError, NotFoundError } from '@bricks-ether/server-utils';
 import { Web3Service, web3Service } from '../web3';
 import {
 	ContractRow,
 	ContractsRepository,
-	contractsRepository
+	contractsRepository,
 } from './repository';
 import {
 	AddressDeployRequestBody,
 	GetByNameParams,
-	IndexDeployRequestBody
+	IndexDeployRequestBody,
 } from './types';
 
 export class ContractsService {
@@ -26,7 +27,9 @@ export class ContractsService {
 	async getByName(params: GetByNameParams): Promise<ContractRow> {
 		const contract = await this.#contractsRepository.getByName(params);
 		if (!contract) {
-			throw new Error('not found');
+			throw new NotFoundError({
+				message: `Contract with name ${params.name} not found`,
+			});
 		}
 
 		return contract;
@@ -35,23 +38,26 @@ export class ContractsService {
 	async deployByAddress(
 		params: AddressDeployRequestBody
 	): Promise<ContractRow> {
-		const { abi, name, senderAddress, bytecode, contractsArgs, } = params;
+		const { abi, name, senderAddress, bytecode, contractsArgs } = params;
 
 		const existingContract = await this.#contractsRepository.getByName({
 			name,
 		});
 
 		if (existingContract) {
-			throw new Error('Conflict');
+			throw new ConflictError({
+				message: 'Contract with this name already exists',
+				cause: existingContract,
+			});
 		}
 
 		const web3Contract = new this.#web3Service.eth.Contract(abi);
 		const response = await web3Contract
-			.deploy({ data: bytecode, arguments: contractsArgs, })
-			.send({ from: senderAddress, });
+			.deploy({ data: bytecode, arguments: contractsArgs })
+			.send({ from: senderAddress });
 
-		const { address, } = response.options;
-		return this.#contractsRepository.create({ address, name, });
+		const { address } = response.options;
+		return this.#contractsRepository.create({ address, name });
 	}
 
 	async deployByIndex(params: IndexDeployRequestBody): Promise<ContractRow> {
@@ -59,7 +65,7 @@ export class ContractsService {
 		const senderAddress = await this.#web3Service.getAccountByIndex(
 			senderIndex
 		);
-		return this.deployByAddress({ ...rest, senderAddress, });
+		return this.deployByAddress({ ...rest, senderAddress });
 	}
 
 	// Может вынести в микросервис, который компилирует и возвращает байткод с аби
