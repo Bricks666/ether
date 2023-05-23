@@ -34,12 +34,14 @@ export class CompilerVersionService {
 			await access(VERSIONS_PATH, constants.R_OK);
 			return readFile(VERSIONS_PATH, 'utf-8').then(JSON.parse);
 		} catch {
-			const versions = await getSolidityCompilerVersions().then(
-				prepareVersions
-			);
-			await writeFile(VERSIONS_PATH, JSON.stringify(versions), 'utf-8');
-			return versions;
+			return this.loadSolidityVersion();
 		}
+	}
+
+	async loadSolidityVersion(): Promise<PreparedVersions> {
+		const versions = await getSolidityCompilerVersions().then(prepareVersions);
+		await writeFile(VERSIONS_PATH, JSON.stringify(versions), 'utf-8');
+		return versions;
 	}
 }
 

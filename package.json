@@ -2,11 +2,16 @@
 	"name": "bricks-ether",
 	"version": "1.0.0",
 	"description": "",
-  "private": false,
+	"private": false,
 	"type": "module",
 	"workspaces": [
 		"packages/*"
 	],
+	"scripts": {
+		"lint": "eslint --ext .ts src/",
+		"lint:fix": "eslint --ext .ts src/ --fix",
+		"prettier": "prettier --write --config ./.prettierrc src"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Bricks666/ether.git"

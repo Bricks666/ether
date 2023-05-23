@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import dotenv from 'dotenv';
 import express, { json } from 'express';
 import cors from 'cors';
@@ -16,11 +17,11 @@ app.use('/api', contractsRouter);
 
 app.use(createErrorHandler());
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, async () => {
 	web3Service.setProvider(process.env.NODE_HOST);
-	databaseService.config.filename = process.env.DB_FILE;
+	databaseService.config.filename = join('database', process.env.DB_FILE);
 	await databaseService.open();
 	console.log(`contracts service starts on port: ${PORT}`);
 });
