@@ -32,10 +32,10 @@ interface CreateRequest<
 > {
 	<Response>(
 		cb: Callback<ParamsWithContracts<ABI, Record<string, never>>, Response>
-	): ContractResponse<Response, NormalizeResponse>;
+	): Callback<void, ContractResponse<Response, NormalizeResponse>>;
 	<Params extends Record<string, any>, Response>(
 		cb: Callback<ParamsWithContracts<ABI, Params>, Response>
-	): ContractResponse<Response, NormalizeResponse>;
+	): Callback<Params, ContractResponse<Response, NormalizeResponse>>;
 }
 
 type ContractResponse<
