@@ -11,7 +11,15 @@ dotenv.config();
 
 const app = express();
 
-app.use(json(), cors());
+app.use(
+	json(),
+	cors({
+		credentials: true,
+		origin(requestOrigin, callback) {
+			callback(null, true);
+		},
+	})
+);
 
 app.use('/api', contractsRouter);
 

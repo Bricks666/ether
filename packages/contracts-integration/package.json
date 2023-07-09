@@ -1,0 +1,48 @@
+{
+	"name": "@bricks-ether/contracts-integration",
+	"version": "1.0.0",
+	"private": true,
+	"files": [
+		"dist"
+	],
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"type": "module",
+	"scripts": {
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"lint": "eslint --ext .tsx,.ts src",
+		"lint:fix": "eslint --ext .tsx,.ts src --fix",
+		"prettier": "prettier --write --config ./.prettierrc src"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Bricks666/ether.git"
+	},
+	"keywords": [
+		"web3",
+		"contracts"
+	],
+	"author": "Bricks666",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Bricks666/ether/issues"
+	},
+	"homepage": "https://github.com/Bricks666/ether#readme",
+	"dependencies": {
+		"web3-validator": "^1.0.1"
+	},
+	"devDependencies": {
+		"@types/node": "^20.4.1",
+		"vite": "^4.4.2"
+	},
+	"peerDependencies": {
+		"web3": "^4.0.0"
+	}
+}

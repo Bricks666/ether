@@ -29,9 +29,9 @@
 		"multer": "^1.4.5-lts.1",
 		"sqlite": "^4.2.0",
 		"sqlite3": "^5.1.6",
-		"web3": "^1.9.0",
-		"web3-core": "^1.9.0",
-		"web3-utils": "^1.9.0",
+		"web3": "^4.0.0",
+		"web3-core": "^4.0.0",
+		"web3-utils": "^4.0.0",
 		"@bricks-ether/server-utils": "^1.1.5"
 	},
 	"devDependencies": {

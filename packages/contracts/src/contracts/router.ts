@@ -10,6 +10,13 @@ import { contractsController } from './controller';
 
 export const contractsRouter = Router();
 
+const createSenderValidator = () => {
+	return oneOf([
+		body('senderAddress').isString().trim().notEmpty().isEthereumAddress(),
+		body('senderIndex').toInt().isNumeric()
+	]);
+};
+
 contractsRouter.get(
 	'/:name',
 	param('name').isString().trim().notEmpty(),
@@ -18,10 +25,7 @@ contractsRouter.get(
 );
 contractsRouter.post(
 	'/deploy',
-	oneOf([
-		body('senderAddress').isString().trim().notEmpty().isEthereumAddress(),
-		body('senderIndex').toInt().isNumeric()
-	]),
+	createSenderValidator(),
 	body('abi').isJSON().notEmpty(),
 	body('bytecode').isString().trim().notEmpty(),
 	body('name').isString().trim().notEmpty(),
@@ -35,6 +39,7 @@ contractsRouter.post(
 		{ name: 'abi', maxCount: 1, },
 		{ name: 'bytecode', maxCount: 1, }
 	]),
+	createSenderValidator(),
 	body('abi').custom(filesValidators.objectExistFile),
 	body('bytecode').custom(filesValidators.objectExistFile),
 	body('name').isString().trim().notEmpty(),
@@ -45,6 +50,7 @@ contractsRouter.post(
 contractsRouter.post(
 	'/deploy/source',
 	multer.single('contract'),
+	createSenderValidator(),
 	body('contract').custom(filesValidators.existsSingle),
 	body('name').isString().trim().notEmpty(),
 	body('contractNameInFile').isString().trim().notEmpty(),
