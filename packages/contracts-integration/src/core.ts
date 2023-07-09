@@ -11,6 +11,7 @@ export interface CreateContractsIntegrationParams<
 	NormalizeResponse extends boolean
 > {
 	readonly providerHost: string;
+	readonly contractsServiceHost: string;
 	readonly contractName: string;
 	readonly abi: ABI;
 	readonly normalizeResponse?: NormalizeResponse;
@@ -48,13 +49,21 @@ export const createContractsIntegration = <
 >(
 		params: CreateContractsIntegrationParams<ABI, NormalizeResponse>
 	): CreateContractsIntegrationResult<ABI, NormalizeResponse> => {
-	const { abi, contractName, providerHost, normalizeResponse, } = params;
+	const {
+		abi,
+		contractName,
+		providerHost,
+		normalizeResponse,
+		contractsServiceHost,
+	} = params;
 
 	const web3 = new Web3(providerHost);
 	let contract: Contract<ABI> | null = null;
 
 	const fetch = async (): Promise<Contract<ABI>> => {
-		const response = await request<ContractInfo>(`/${contractName}`);
+		const response = await request<ContractInfo>(
+			`${contractsServiceHost}/${contractName}`
+		);
 		contract = new web3.eth.Contract(abi, response.address);
 		return contract;
 	};
@@ -76,7 +85,9 @@ export const createContractsIntegration = <
 	};
 
 	return {
-		contract,
+		get contract() {
+			return contract;
+		},
 		createRequest,
 		fetch,
 	};
