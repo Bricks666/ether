@@ -1,14 +1,13 @@
-version: '3'
+version: '3.5'
 services:
   proxy:
-    image: nginx:alpine
+    build: ./packages/proxy
     ports:
       - ${PROXY_PORT}:80
-    volumes:
-      - ./configs/nginx:/etc/nginx/templates
     networks:
       geth-private-net:
     restart: always
+    container_name:  proxy
     depends_on:
       - network
       - contracts
@@ -22,7 +21,7 @@ services:
       - 8546:8546
       - 30303:30303
     volumes:
-      - geth-data:/root
+      - geth-data:/root/.ethereum
     container_name: network
     restart: always
     networks:
@@ -39,6 +38,7 @@ services:
     restart: always
     depends_on:
       - network
+      - compiler
     networks:
       geth-private-net:
   compiler:
@@ -59,9 +59,8 @@ services:
 networks:
   geth-private-net:
     driver: bridge
-    ipam:
-      config:
-      - subnet: ${SUBNET}
+    name: geth-net
+    attachable: true
 
 volumes:
   geth-data:
