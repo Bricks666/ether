@@ -1,4 +1,8 @@
-import Web3, { type Contract, type ContractAbi } from 'web3';
+import Web3, {
+	type SupportedProviders,
+	type Contract,
+	type ContractAbi
+} from 'web3';
 import {
 	type NormalizedType,
 	normalizeWeb3Response
@@ -10,7 +14,7 @@ export interface CreateContractsIntegrationParams<
 	ABI extends ContractAbi,
 	NormalizeResponse extends boolean
 > {
-	readonly providerHost: string;
+	readonly providerHost: SupportedProviders;
 	readonly contractsServiceHost: string;
 	readonly contractName: string;
 	readonly abi: ABI;
