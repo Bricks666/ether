@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   proxy:
-    build: ./packages/proxy
+    build: ./apps/proxy
     ports:
       - ${PROXY_PORT}:80
     networks:
@@ -15,7 +15,7 @@ services:
   network:
     env_file:
       - .env
-    build: ./packages/network
+    build: ./apps/network
     ports:
       - 8545:8545
       - 8546:8546
@@ -27,7 +27,7 @@ services:
     networks:
       geth-private-net:
   contracts:
-    build: ./packages/contracts
+    build: ./apps/contracts
     env_file:
       - .env
     environment:
@@ -42,7 +42,7 @@ services:
     networks:
       geth-private-net:
   compiler:
-    build: ./packages/compiler
+    build: ./apps/compiler
     ports:
       - 5000:5000
     env_file:
