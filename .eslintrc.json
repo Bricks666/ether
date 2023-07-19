@@ -1,8 +1,4 @@
 {
-	"env": {
-		"browser": true,
-		"es2021": true
-	},
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
@@ -15,9 +11,6 @@
 	],
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
-		"ecmaFeatures": {
-			"jsx": true
-		},
 		"ecmaVersion": "latest",
 		"sourceType": "module"
 	},
@@ -34,7 +27,6 @@
 				"SwitchCase": 1
 			}
 		],
-		"jsx-quotes": ["error", "prefer-single"],
 		"linebreak-style": "off",
 		"no-param-reassign": "off",
 		"implicit-arrow-linebreak": "off",
@@ -91,5 +83,5 @@
 		"@typescript-eslint/no-unused-vars": ["error"],
 		"@typescript-eslint/no-empty-interface": ["off"]
 	},
-	"ignorePatterns": ["dist"]
+	"ignorePatterns": ["dist", "build"]
 }
