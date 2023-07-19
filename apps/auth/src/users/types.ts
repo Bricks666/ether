@@ -10,10 +10,10 @@ export interface SelectUserById {
 
 export type SelectUser = SelectUserByLogin | SelectUserById;
 
-export interface CreateUser extends CreateUserDto {
-	readonly avatar?: string;
+export interface CreateUser extends Omit<CreateUserDto, 'avatar'> {
+	avatar?: string;
 }
 
-export interface UpdateUser extends UpdateUserDto {
-	readonly avatar?: string;
+export interface UpdateUser extends Omit<UpdateUserDto, 'avatar'> {
+	avatar?: string;
 }

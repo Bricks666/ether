@@ -1,35 +1,56 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { FilesService } from '@/files';
 import { UserRepository } from './repositories';
-import { SelectUser } from './types';
-import { User } from './entities';
-import { SecurityUserDto } from './dto';
+import type { CreateUser, SelectUser, UpdateUser } from './types';
+import type { User } from './entities';
+import type { CreateUserDto, SecurityUserDto, UpdateUserDto } from './dto';
 
 @Injectable()
 export class UsersService {
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly filesService: FilesService
+	) {}
 
 	async getOne(params: SelectUser) {
 		const user = await this.userRepository.getOne(params);
-
-		return UsersService.secureUser(user);
-	}
-
-	async create(data: CreateUserDto): Promise<SecurityUserDto> {
-		const user = await this.userRepository.create(data);
-
-		return UsersService.secureUser(user);
-	}
-
-	async update(params: SelectUser, data: UpdateUserDto): Promise<User> {
-		const user = await this.userRepository.update(params, data);
 
 		if (!user) {
 			throw new NotFoundException("User wasn't found");
 		}
 
-		return user;
+		return UsersService.secureUser(user);
+	}
+
+	async create(data: CreateUserDto): Promise<SecurityUserDto> {
+		const { avatar, ...dto } = data;
+
+		if (avatar) {
+			const avatarPath = await this.filesService.writeFile(data.avatar);
+			(dto as CreateUser).avatar = avatarPath;
+		}
+
+		const user = await this.userRepository.create(dto);
+
+		return UsersService.secureUser(user);
+	}
+
+	async update(params: SelectUser, data: UpdateUserDto): Promise<User> {
+		const { avatar, ...dto } = data;
+		const currentUserData = await this.getOne(params);
+
+		if (data.avatar !== undefined && currentUserData.avatar) {
+			await this.filesService.removeFile(
+				this.filesService.toFileSystemPath(currentUserData.avatar)
+			);
+		}
+
+		if (avatar) {
+			const avatarPath = await this.filesService.writeFile(data.avatar);
+			(dto as UpdateUser).avatar = avatarPath;
+		}
+
+		return this.userRepository.update(params, dto);
 	}
 
 	async remove(params: SelectUser): Promise<boolean> {

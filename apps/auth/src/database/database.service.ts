@@ -1,16 +1,15 @@
-import { PrismaClientOptions } from '@prisma/client/runtime';
-import {
-	INestApplication,
-	Inject,
-	Injectable,
-	OnModuleInit
-} from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { MODULE_OPTIONS_TOKEN } from './database.module-definition';
 
 @Injectable()
-export class DatabaseService extends PrismaClient implements OnModuleInit {
-	constructor(@Inject(MODULE_OPTIONS_TOKEN) options: PrismaClientOptions) {
+export class DatabaseService
+	extends PrismaClient<Prisma.PrismaClientOptions, 'query' | 'beforeExit'>
+	implements OnModuleInit
+{
+	constructor(
+		@Inject(MODULE_OPTIONS_TOKEN) options: Prisma.PrismaClientOptions
+	) {
 		super({
 			...options,
 			log: [
@@ -37,16 +36,10 @@ export class DatabaseService extends PrismaClient implements OnModuleInit {
 	async onModuleInit() {
 		await this.$connect();
 
-		this.$on('query' as any, (e: Record<string, any>) => {
+		this.$on<'query'>('query', (e: Prisma.QueryEvent) => {
 			console.log(`Query: ${e.query}`);
 			console.log(`Params: ${e.params}`);
 			console.log(`Duration: ${e.duration}ms`);
-		});
-	}
-
-	async enableShutdownHooks(app: INestApplication) {
-		this.$on('beforeExit', async () => {
-			await app.close();
 		});
 	}
 }

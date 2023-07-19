@@ -3,16 +3,14 @@ import * as validatorPackage from 'class-validator';
 import * as transformerPackage from 'class-transformer';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { AppModule } from '@/app.module';
-import { DatabaseService } from '@/database';
+import { COOKIE_NAME, PORT } from './shared';
 
 async function bootstrap() {
-	const { PORT, } = process.env;
 	const app = await NestFactory.create(AppModule);
 
-	const prismaService = app.get(DatabaseService);
-	await prismaService.enableShutdownHooks(app);
+	app.enableShutdownHooks();
 
 	app.use(cookieParser());
 	app.enableCors({
@@ -33,7 +31,7 @@ async function bootstrap() {
 		.setTitle('Документация по API сервера "Task manager"')
 		.setDescription('Документация по API приложения дел')
 		.setVersion('1.0.0')
-		.addCookieAuth(process.env.COOKIE_NAME)
+		.addCookieAuth(COOKIE_NAME)
 		.addBearerAuth()
 		.addServer('http://localhost:5000')
 		.addTag('api')

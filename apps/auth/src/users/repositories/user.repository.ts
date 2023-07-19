@@ -7,12 +7,11 @@ import type { User } from '../entities';
 export class UserRepository {
 	constructor(private readonly databaseService: DatabaseService) {}
 
-	getOne(params: SelectUser): Promise<User | null> {
-		return (
-			this.databaseService.user.findUnique({
-				where: params,
-			}) ?? null
-		);
+	async getOne(params: SelectUser): Promise<User | null> {
+		const user = await this.databaseService.user.findUnique({
+			where: params,
+		});
+		return user ?? null;
 	}
 
 	create(data: CreateUser): Promise<User> {
