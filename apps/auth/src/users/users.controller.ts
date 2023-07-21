@@ -14,6 +14,8 @@ import {
 	ApiOkResponse,
 	ApiOperation
 } from '@nestjs/swagger';
+import { CurrentUser, RequiredAuth } from '@/auth';
+import { UserTokenPayload } from '@/auth/types';
 import { UsersService } from './users.service';
 import { SecurityUserDto, UpdateUserDto } from './dto';
 
@@ -22,8 +24,9 @@ export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
 	@Put('/update')
+	@RequiredAuth()
 	@ApiOperation({
-		summary: '',
+		summary: 'Update user info',
 	})
 	@ApiBody({
 		type: UpdateUserDto,
@@ -41,9 +44,10 @@ export class UsersController {
 	})
 	@UseInterceptors(FileInterceptor('avatar'))
 	async update(
+		@CurrentUser() user: UserTokenPayload,
 		@Body() body: UpdateUserDto,
 		@UploadedFile('avatar') avatar?: Express.Multer.File | null
 	): Promise<SecurityUserDto> {
-		return this.usersService.update({ id: '', }, { ...body, avatar, });
+		return this.usersService.update({ id: user.id, }, { ...body, avatar, });
 	}
 }

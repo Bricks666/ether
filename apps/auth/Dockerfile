@@ -16,6 +16,6 @@ RUN npm i --omit=dev --ignore-scripts
 COPY --from=builder /app/prisma ./prisma
 RUN npx prisma generate
 COPY --from=builder /app/dist ./
-EXPOSE 5000
+EXPOSE ${PORT}
 USER node
 CMD ["npm", "run", "start:prod"]
