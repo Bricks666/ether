@@ -3,11 +3,17 @@ import {
 	Injectable,
 	UnauthorizedException
 } from '@nestjs/common';
-import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { type SecurityUserDto, UsersService } from '@/users';
-import type { LoginDto, RegistrationDto } from './dto';
-import type { AuthResponse, Tokens, UserTokenPayload } from './types';
+import { compare } from 'bcrypt';
+import { UsersService } from '@/users';
+import { TOKEN_SECRET } from '@/shared';
+import type {
+	AuthResponseDto,
+	LoginDto,
+	RegistrationDto,
+	TokensDto
+} from './dto';
+import type { UserTokenPayload } from './types';
 
 @Injectable()
 export class AuthService {
@@ -16,13 +22,23 @@ export class AuthService {
 		private readonly jwtService: JwtService
 	) {}
 
-	async getMe(token: string): Promise<SecurityUserDto> {
+	async getMe(token: string): Promise<AuthResponseDto> {
 		const user = await this.extractUser(token);
 
-		return this.usersService.getOne({ id: user.id, });
+		const secureUser = await this.usersService.getOne({ id: user.id, });
+
+		const tokens = await this.generateTokens({
+			id: secureUser.id,
+			login: secureUser.login,
+		});
+
+		return {
+			tokens,
+			user: secureUser,
+		};
 	}
 
-	async login(data: LoginDto): Promise<AuthResponse> {
+	async login(data: LoginDto): Promise<AuthResponseDto> {
 		const { login, password, } = data;
 		const user = await this.usersService.getOneInsecure({ login, });
 
@@ -43,11 +59,11 @@ export class AuthService {
 		};
 	}
 
-	async registration(data: RegistrationDto): Promise<SecurityUserDto> {
-		return this.usersService.create(data);
+	async registration(data: RegistrationDto): Promise<boolean> {
+		return this.usersService.create(data).then(() => true);
 	}
 
-	async refresh(token: string): Promise<Tokens> {
+	async refresh(token: string): Promise<TokensDto> {
 		const user = await this.extractUser(token).catch((err) => {
 			throw new ForbiddenException('Invalid token', { cause: err, });
 		});
@@ -57,23 +73,29 @@ export class AuthService {
 
 	async extractUser(token: string): Promise<UserTokenPayload> {
 		try {
-			return await this.jwtService.verify(token, {
-				secret: process.env.TOKEN_SECRET,
+			const [type, tokenBody] = token.split(' ');
+
+			if (type !== 'Bearer') {
+				throw type;
+			}
+
+			return await this.jwtService.verify(tokenBody, {
+				secret: TOKEN_SECRET,
 			});
 		} catch (error) {
 			throw new UnauthorizedException('Invalid token', { cause: error, });
 		}
 	}
 
-	async generateTokens(user: UserTokenPayload): Promise<Tokens> {
+	async generateTokens(user: UserTokenPayload): Promise<TokensDto> {
 		const tokens = [
 			this.jwtService.sign(user, {
 				expiresIn: '15min',
-				secret: process.env.TOKEN_SECRET,
+				secret: TOKEN_SECRET,
 			}),
 			this.jwtService.sign(user, {
 				expiresIn: '30d',
-				secret: process.env.TOKEN_SECRET,
+				secret: TOKEN_SECRET,
 			})
 		];
 

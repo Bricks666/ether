@@ -19,7 +19,6 @@ const STATIC_DIR_PATH = resolve(__dirname, STATIC_DIR);
 		DatabaseModule.forRoot({
 			isGlobal: true,
 		}),
-		UsersModule,
 		FilesModule.forRoot({
 			dir: STATIC_DIR_PATH,
 			clientPath: STATIC_PATH,
@@ -28,7 +27,8 @@ const STATIC_DIR_PATH = resolve(__dirname, STATIC_DIR);
 			rootPath: STATIC_DIR_PATH,
 			serveRoot: STATIC_PATH,
 		}),
-		AuthModule
+		AuthModule,
+		UsersModule
 	],
 	controllers: [],
 	providers: [],
