@@ -6,6 +6,7 @@ import { DatabaseModule } from './database';
 import { UsersModule } from './users';
 import { FilesModule } from './files';
 import { STATIC_DIR, STATIC_PATH } from './shared';
+import { AuthModule } from './auth/auth.module';
 
 const STATIC_DIR_PATH = resolve(__dirname, STATIC_DIR);
 
@@ -26,7 +27,8 @@ const STATIC_DIR_PATH = resolve(__dirname, STATIC_DIR);
 		ServeStaticModule.forRoot({
 			rootPath: STATIC_DIR_PATH,
 			serveRoot: STATIC_PATH,
-		})
+		}),
+		AuthModule
 	],
 	controllers: [],
 	providers: [],

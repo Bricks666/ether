@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+	ConflictException,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common';
 import { FilesService } from '@/files';
 import { UserRepository } from './repositories';
 import type { CreateUser, SelectUser, UpdateUser } from './types';
@@ -12,7 +16,7 @@ export class UsersService {
 		private readonly filesService: FilesService
 	) {}
 
-	async getOne(params: SelectUser) {
+	async getOne(params: SelectUser): Promise<SecurityUserDto> {
 		const user = await this.userRepository.getOne(params);
 
 		if (!user) {
@@ -20,6 +24,16 @@ export class UsersService {
 		}
 
 		return UsersService.secureUser(user);
+	}
+
+	async getOneInsecure(params: SelectUser): Promise<User> {
+		const user = await this.userRepository.getOne(params);
+
+		if (!user) {
+			throw new NotFoundException("User wasn't found");
+		}
+
+		return user;
 	}
 
 	async create(data: CreateUserDto): Promise<SecurityUserDto> {
@@ -30,12 +44,19 @@ export class UsersService {
 			(dto as CreateUser).avatar = avatarPath;
 		}
 
-		const user = await this.userRepository.create(dto);
+		try {
+			const user = await this.userRepository.create(dto);
 
-		return UsersService.secureUser(user);
+			return UsersService.secureUser(user);
+		} catch (error) {
+			throw new ConflictException('User already exists');
+		}
 	}
 
-	async update(params: SelectUser, data: UpdateUserDto): Promise<User> {
+	async update(
+		params: SelectUser,
+		data: UpdateUserDto
+	): Promise<SecurityUserDto> {
 		const { avatar, ...dto } = data;
 		const currentUserData = await this.getOne(params);
 
@@ -50,7 +71,9 @@ export class UsersService {
 			(dto as UpdateUser).avatar = avatarPath;
 		}
 
-		return this.userRepository.update(params, dto);
+		const user = await this.userRepository.update(params, dto);
+
+		return UsersService.secureUser(user);
 	}
 
 	async remove(params: SelectUser): Promise<boolean> {
