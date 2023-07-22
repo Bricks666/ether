@@ -23,7 +23,7 @@ export class RequiredAuthGuard implements CanActivate, OnModuleInit {
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request: Request = context.switchToHttp().getRequest();
 
-		const token = extractToken(request);
+		const token = extractToken(request.headers.authorization);
 
 		if (!token) {
 			throw new BadRequestException('Invalid authorization header');

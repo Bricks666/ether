@@ -5,7 +5,7 @@ import type { CookieOptions, Request, Response } from 'express';
 export const Cookie = createParamDecorator(
 	<T>(name: string, context: ExecutionContext): CookieData<T> => {
 		const request: Request = context.switchToHttp().getRequest();
-		const response: Response = context.switchToHttp().getRequest();
+		const response: Response = context.switchToHttp().getResponse();
 
 		const value: T | null = request.cookies[name] ?? null;
 

@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
 import {
 	ApiBadRequestResponse,
@@ -9,14 +10,54 @@ import {
 	ApiOperation,
 	ApiUnauthorizedResponse
 } from '@nestjs/swagger';
-import { COOKIE_NAME } from '@/shared';
+import { COOKIE_NAME, StatusResponseDto, createStatusResponse } from '@/shared';
+import { UsersService } from '@/users';
 import { AuthService } from './auth.service';
-import { RequiredCookie, Cookie, CookieData } from './lib';
+import {
+	RequiredCookie,
+	Cookie,
+	CookieData,
+	RequiredAuth,
+	CurrentUser
+} from './lib';
 import { AuthResponseDto, LoginDto, RegistrationDto, TokensDto } from './dto';
+import { UserTokenPayload } from './types';
 
 @Controller('auth')
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+	constructor(
+		private readonly authService: AuthService,
+		private readonly usersService: UsersService
+	) {}
+
+	@Get('/check_token')
+	@RequiredAuth()
+	@ApiOperation({
+		summary: 'Check if access token valid',
+	})
+	@ApiOkResponse({
+		type: StatusResponseDto,
+		description: 'Validation status',
+	})
+	@ApiNotFoundResponse({
+		description: 'Current user not found',
+	})
+	@ApiUnauthorizedResponse({
+		description: 'Invalid token',
+	})
+	@ApiBadRequestResponse({
+		description: 'There is not auth header',
+	})
+	async checkToken(
+		@CurrentUser() user: UserTokenPayload
+	): Promise<StatusResponseDto> {
+		await this.usersService.getOne({ id: user.id, });
+
+		return createStatusResponse({
+			status: 'valid',
+			statusCode: 0,
+		});
+	}
 
 	@Get('/me')
 	@RequiredCookie(COOKIE_NAME, false)
@@ -86,14 +127,21 @@ export class AuthController {
 		description: 'New user data',
 	})
 	@ApiOkResponse({
-		type: Boolean,
+		type: StatusResponseDto,
 		description: 'Registration success',
 	})
 	@ApiConflictResponse({
 		description: 'User already registered',
 	})
-	registration(@Body() data: RegistrationDto): Promise<boolean> {
-		return this.authService.registration(data);
+	async registration(
+		@Body() data: RegistrationDto
+	): Promise<StatusResponseDto> {
+		const isValid = await this.authService.registration(data);
+
+		return createStatusResponse({
+			status: isValid ? 'registered' : 'error',
+			statusCode: isValid ? 0 : 1,
+		});
 	}
 
 	@Delete('/logout')
@@ -102,14 +150,18 @@ export class AuthController {
 		summary: 'Logout from account',
 	})
 	@ApiOkResponse({
-		type: Boolean,
+		type: StatusResponseDto,
 		description: 'Logout success',
 	})
 	async logout(
 		@Cookie(COOKIE_NAME) cookie: CookieData<string>
-	): Promise<boolean> {
+	): Promise<StatusResponseDto> {
 		cookie.clearCookie();
-		return true;
+
+		return createStatusResponse({
+			status: 'logout',
+			statusCode: 0,
+		});
 	}
 
 	@Get('/refresh')

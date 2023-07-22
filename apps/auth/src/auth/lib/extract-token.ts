@@ -1,12 +1,11 @@
-import type { Request } from 'express';
-
-export const extractToken = (req: Request): string | null => {
-	const authHeader = req.headers.authorization;
-
-	if (!authHeader) {
+export const extractToken = (
+	header: string | null | undefined
+): string | null => {
+	if (!header) {
 		return null;
 	}
-	const [type, token] = authHeader.split(' ');
+
+	const [type, token] = header.split(' ');
 
 	if (type !== 'Bearer') {
 		return null;

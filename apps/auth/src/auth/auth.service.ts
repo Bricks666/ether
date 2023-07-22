@@ -4,9 +4,10 @@ import {
 	UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compare } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { UsersService } from '@/users';
-import { TOKEN_SECRET } from '@/shared';
+import { ROUND_COUNT } from '@/shared';
+import { extractToken } from './lib';
 import type {
 	AuthResponseDto,
 	LoginDto,
@@ -22,7 +23,9 @@ export class AuthService {
 		private readonly jwtService: JwtService
 	) {}
 
-	async getMe(token: string): Promise<AuthResponseDto> {
+	async getMe(rawToken: string): Promise<AuthResponseDto> {
+		const token = extractToken(rawToken);
+
 		const user = await this.extractUser(token);
 
 		const secureUser = await this.usersService.getOne({ id: user.id, });
@@ -60,7 +63,10 @@ export class AuthService {
 	}
 
 	async registration(data: RegistrationDto): Promise<boolean> {
-		return this.usersService.create(data).then(() => true);
+		const hashedPassword = await hash(data.password, ROUND_COUNT);
+		return this.usersService
+			.create({ ...data, password: hashedPassword, })
+			.then(() => true);
 	}
 
 	async refresh(token: string): Promise<TokensDto> {
@@ -73,15 +79,7 @@ export class AuthService {
 
 	async extractUser(token: string): Promise<UserTokenPayload> {
 		try {
-			const [type, tokenBody] = token.split(' ');
-
-			if (type !== 'Bearer') {
-				throw type;
-			}
-
-			return await this.jwtService.verify(tokenBody, {
-				secret: TOKEN_SECRET,
-			});
+			return await this.jwtService.verify(token);
 		} catch (error) {
 			throw new UnauthorizedException('Invalid token', { cause: error, });
 		}
@@ -91,11 +89,9 @@ export class AuthService {
 		const tokens = [
 			this.jwtService.sign(user, {
 				expiresIn: '15min',
-				secret: TOKEN_SECRET,
 			}),
 			this.jwtService.sign(user, {
 				expiresIn: '30d',
-				secret: TOKEN_SECRET,
 			})
 		];
 

@@ -79,7 +79,7 @@ services:
       - POSTGRES_USER=${DATABASE_USER}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
-      - main-database-data:/var/lib/posgresql
+      - main-database-data:/var/lib/postgresql/data
     networks:
       geth-private-net:
     container_name: database

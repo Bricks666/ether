@@ -1,4 +1,7 @@
 /* eslint-disable no-undef */
+
+import lib from './lib.js';
+
 interface JSONRPCBody {
 	readonly jsonrpc: string;
 	readonly method: string;
@@ -20,7 +23,7 @@ const validateJSONRPC = (request: NginxHTTPRequest): void => {
 		);
 	}
 
-	const body = parseBody(request);
+	const body = lib.parseBody<JSONRPCBody>(request.requestText);
 
 	if (!body) {
 		return request.return(400, 'invalid body');
@@ -58,14 +61,6 @@ const extractList = (variable: string | undefined): string[] | null => {
 	}
 
 	return variable.split(',');
-};
-
-const parseBody = (req: globalThis.NginxHTTPRequest): JSONRPCBody | null => {
-	try {
-		return JSON.parse(req.requestText);
-	} catch {
-		return null;
-	}
 };
 
 export default { validateJSONRPC, };

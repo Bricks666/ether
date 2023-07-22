@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY tsconfig.json .
 COPY package*.json .
+
 RUN npm ci --ignore-scripts
 RUN npm i typescript -D --ignore-scrips
 
