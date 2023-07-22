@@ -7,7 +7,7 @@ import { UsersController } from './users.controller';
 @Module({
 	imports: [forwardRef(() => AuthModule)],
 	providers: [UsersService, UserRepository],
-	exports: [UsersService],
 	controllers: [UsersController],
+	exports: [UsersService],
 })
 export class UsersModule {}

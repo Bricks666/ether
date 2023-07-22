@@ -1,19 +1,15 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
+		"target": "ES5",
+		"module": "es2015",
 		"moduleResolution": "node",
-		"declaration": true,
+		"declaration": false,
 		"removeComments": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true,
-		"target": "es2017",
-		"sourceMap": true,
-		"outDir": "./dist",
+		"sourceMap": false,
+		"outDir": "./scripts",
 		"baseUrl": "./src/",
-		"paths": {
-			"@/*": ["*"]
-		},
+		"lib": ["ES2015", "ES2016.Array.Include", "ES2017.Object", "ES2017.String"],
 		"incremental": true,
 		"skipLibCheck": true,
 		"strictNullChecks": false,
@@ -22,5 +18,5 @@
 		"forceConsistentCasingInFileNames": false,
 		"noFallthroughCasesInSwitch": false
 	},
-	"include": ["src/**/*.ts"]
+	"include": ["src/**/*.ts", "./node_modules/njs-types/ngx_http_js_module.d.ts"]
 }

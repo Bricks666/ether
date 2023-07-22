@@ -2,15 +2,23 @@ import {
 	BadRequestException,
 	CanActivate,
 	ExecutionContext,
-	Injectable
+	Injectable,
+	OnModuleInit
 } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
+import { AuthService } from '../auth.service';
 import { extractToken } from './extract-token';
-import type { AuthService } from '../auth.service';
 import type { Request } from 'express';
 
 @Injectable()
-export class RequiredAuthGuard implements CanActivate {
-	constructor(private readonly authService: AuthService) {}
+export class RequiredAuthGuard implements CanActivate, OnModuleInit {
+	authService: AuthService;
+
+	constructor(private readonly moduleRef: ModuleRef) {}
+
+	onModuleInit() {
+		this.authService = this.moduleRef.get(AuthService, { strict: false, });
+	}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request: Request = context.switchToHttp().getRequest();

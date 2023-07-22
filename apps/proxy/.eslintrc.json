@@ -1,0 +1,12 @@
+{
+	"env": {
+		"node": true,
+    "shelljs": true
+	},
+	"extends": ["../../.eslintrc.json"],
+	"rules": {
+		"no-undef": "warn",
+
+		"@typescript-eslint/no-unused-vars": "warn"
+	}
+}

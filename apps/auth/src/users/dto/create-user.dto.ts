@@ -17,5 +17,5 @@ export class CreateUserDto extends PickType(User, [
 		nullable: true,
 	})
 	@IsOptional()
-	declare avatar?: Express.Multer.File | null;
+	declare avatar?: globalThis.Express.Multer.File | null;
 }

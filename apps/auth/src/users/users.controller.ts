@@ -46,7 +46,7 @@ export class UsersController {
 	async update(
 		@CurrentUser() user: UserTokenPayload,
 		@Body() body: UpdateUserDto,
-		@UploadedFile('avatar') avatar?: Express.Multer.File | null
+		@UploadedFile('avatar') avatar?: globalThis.Express.Multer.File | null
 	): Promise<SecurityUserDto> {
 		return this.usersService.update({ id: user.id, }, { ...body, avatar, });
 	}

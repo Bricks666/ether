@@ -1,0 +1,14 @@
+{
+	"name": "@bricks-ether/proxy",
+	"version": "1.0.0",
+	"description": "scripts for proxy",
+	"scripts": {
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"njs-types": "^0.8.0"
+	}
+}
