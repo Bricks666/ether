@@ -20,20 +20,18 @@ export class UserRepository {
 		});
 	}
 
-	update(params: SelectUser, data: UpdateUser): Promise<User | null> {
-		return (
-			this.databaseService.user.update({
-				where: params,
-				data,
-			}) ?? null
-		);
+	async update(params: SelectUser, data: UpdateUser): Promise<User | null> {
+		const value = await this.databaseService.user.update({
+			where: params,
+			data,
+		});
+		return value ?? null;
 	}
 
-	remove(params: SelectUser): Promise<User | null> {
-		return (
-			this.databaseService.user.delete({
-				where: params,
-			}) ?? null
-		);
+	async remove(params: SelectUser): Promise<User | null> {
+		const value = await this.databaseService.user.delete({
+			where: params,
+		});
+		return value ?? null;
 	}
 }

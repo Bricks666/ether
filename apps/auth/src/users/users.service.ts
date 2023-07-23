@@ -49,7 +49,7 @@ export class UsersService {
 
 			return UsersService.secureUser(user);
 		} catch (error) {
-			throw new ConflictException('User already exists');
+			throw new ConflictException('User already exists', { cause: error, });
 		}
 	}
 
@@ -58,16 +58,16 @@ export class UsersService {
 		data: UpdateUserDto
 	): Promise<SecurityUserDto> {
 		const { avatar, ...dto } = data;
-		const currentUserData = await this.getOne(params);
+		const currentUserData = await this.getOneInsecure(params);
 
-		if (data.avatar !== undefined && currentUserData.avatar) {
+		if (avatar !== undefined && currentUserData.avatar) {
 			await this.filesService.removeFile(
 				this.filesService.toFileSystemPath(currentUserData.avatar)
 			);
 		}
 
 		if (avatar) {
-			const avatarPath = await this.filesService.writeFile(data.avatar);
+			const avatarPath = await this.filesService.writeFile(avatar);
 			(dto as UpdateUser).avatar = avatarPath;
 		}
 
