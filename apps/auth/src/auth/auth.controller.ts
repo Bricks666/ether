@@ -10,16 +10,17 @@ import {
 	ApiOperation,
 	ApiUnauthorizedResponse
 } from '@nestjs/swagger';
-import { COOKIE_NAME, StatusResponseDto, createStatusResponse } from '@/shared';
-import { UsersService } from '@/users/users.service';
-import { AuthService } from './auth.service';
 import {
-	RequiredCookie,
+	COOKIE_NAME,
 	Cookie,
 	CookieData,
-	RequiredAuth,
-	CurrentUser
-} from './lib';
+	RequiredCookie,
+	StatusResponseDto,
+	createStatusResponse
+} from '@/shared';
+import { UsersService } from '@/users/users.service';
+import { AuthService } from './auth.service';
+import { RequiredAuth, CurrentUser } from './lib';
 import { AuthResponseDto, LoginDto, RegistrationDto, TokensDto } from './dto';
 import { UserTokenPayload } from './types';
 
