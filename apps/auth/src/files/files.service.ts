@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { extname, join, resolve } from 'node:path';
 import { writeFile, unlink } from 'node:fs/promises';
 import {
@@ -7,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { MODULE_OPTIONS_TOKEN, OPTIONS_TYPE } from './files.module-definition';
-import type { Express } from 'express';
 
 @Injectable()
 export class FilesService {
