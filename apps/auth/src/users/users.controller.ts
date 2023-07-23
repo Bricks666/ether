@@ -14,7 +14,7 @@ import {
 	ApiOkResponse,
 	ApiOperation
 } from '@nestjs/swagger';
-import { CurrentUser, RequiredAuth } from '@/auth';
+import { CurrentUser, RequiredAuth } from '@/auth/lib';
 import { UserTokenPayload } from '@/auth/types';
 import { UsersService } from './users.service';
 import { SecurityUserDto, UpdateUserDto } from './dto';

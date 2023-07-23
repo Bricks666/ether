@@ -11,7 +11,7 @@ import {
 	ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { COOKIE_NAME, StatusResponseDto, createStatusResponse } from '@/shared';
-import { UsersService } from '@/users';
+import { UsersService } from '@/users/users.service';
 import { AuthService } from './auth.service';
 import {
 	RequiredCookie,
@@ -110,7 +110,7 @@ export class AuthController {
 	async login(
 		@Body() data: LoginDto,
 		@Cookie(COOKIE_NAME) cookie: CookieData<string>
-	) {
+	): Promise<AuthResponseDto> {
 		const response = await this.authService.login(data);
 
 		cookie.setCookie(response.tokens.refreshToken);

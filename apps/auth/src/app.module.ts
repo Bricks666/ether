@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { DatabaseModule } from './database';
-import { UsersModule } from './users';
+import { UsersModule } from './users/users.module';
 import { FilesModule } from './files';
 import { STATIC_DIR, STATIC_PATH } from './shared';
 import { AuthModule } from './auth/auth.module';

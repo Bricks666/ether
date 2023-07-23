@@ -1,11 +1,12 @@
 import {
+	BadRequestException,
 	ForbiddenException,
 	Injectable,
 	UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
-import { UsersService } from '@/users';
+import { UsersService } from '@/users/users.service';
 import { ROUND_COUNT } from '@/shared';
 import { extractToken } from './lib';
 import type {
@@ -25,6 +26,12 @@ export class AuthService {
 
 	async getMe(rawToken: string): Promise<AuthResponseDto> {
 		const token = extractToken(rawToken);
+
+		if (!token) {
+			throw new BadRequestException('Invalid authorization header', {
+				cause: rawToken,
+			});
+		}
 
 		const user = await this.extractUser(token);
 
@@ -79,7 +86,7 @@ export class AuthService {
 
 	async extractUser(token: string): Promise<UserTokenPayload> {
 		try {
-			return await this.jwtService.verify(token);
+			return await this.jwtService.verifyAsync(token);
 		} catch (error) {
 			throw new UnauthorizedException('Invalid token', { cause: error, });
 		}
@@ -87,10 +94,10 @@ export class AuthService {
 
 	async generateTokens(user: UserTokenPayload): Promise<TokensDto> {
 		const tokens = [
-			this.jwtService.sign(user, {
+			this.jwtService.signAsync(user, {
 				expiresIn: '15min',
 			}),
-			this.jwtService.sign(user, {
+			this.jwtService.signAsync(user, {
 				expiresIn: '30d',
 			})
 		];
