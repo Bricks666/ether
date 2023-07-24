@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ES5",
+		"module": "ES2015",
+		"moduleResolution": "NodeNext",
+		"declaration": false,
+		"removeComments": true,
+		"isolatedModules": true,
+		"allowSyntheticDefaultImports": false,
+		"sourceMap": false,
+		"outDir": "scripts",
+		"baseUrl": "src",
+		"lib": ["ES2015", "ES2016.Array.Include", "ES2017.Object", "ES2017.String"],
+		"incremental": true,
+		"skipLibCheck": true,
+		"strictNullChecks": false,
+		"noImplicitAny": false,
+		"strictBindCallApply": false,
+		"forceConsistentCasingInFileNames": false,
+		"noFallthroughCasesInSwitch": false
+	},
+	"include": ["src/**/*.ts", "./node_modules/njs-types/ngx_http_js_module.d.ts"]
+}
