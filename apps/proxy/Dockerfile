@@ -18,7 +18,7 @@ WORKDIR /etc/nginx
 
 RUN apk add nginx-mod-http-js
 
-COPY ./configs/* ./
+COPY ./configs/ ./
 COPY --from=build /app/scripts/ ./scripts
 
 CMD [ "nginx","-g", "daemon off;" ]
