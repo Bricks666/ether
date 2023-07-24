@@ -9,16 +9,19 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
 	ApiBody,
+	ApiConsumes,
 	ApiInternalServerErrorResponse,
 	ApiNotFoundResponse,
 	ApiOkResponse,
-	ApiOperation
+	ApiOperation,
+	ApiTags
 } from '@nestjs/swagger';
 import { CurrentUser, RequiredAuth } from '@/auth/lib';
 import { UserTokenPayload } from '@/auth/types';
 import { UsersService } from './users.service';
 import { SecurityUserDto, UpdateUserDto } from './dto';
 
+@ApiTags('Пользователь')
 @Controller('users')
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
@@ -28,6 +31,7 @@ export class UsersController {
 	@ApiOperation({
 		summary: 'Update user info',
 	})
+	@ApiConsumes('multipart/form-data')
 	@ApiBody({
 		type: UpdateUserDto,
 		description: 'New user data info',

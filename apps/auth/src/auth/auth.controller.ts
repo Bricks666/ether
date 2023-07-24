@@ -8,6 +8,7 @@ import {
 	ApiNotFoundResponse,
 	ApiOkResponse,
 	ApiOperation,
+	ApiTags,
 	ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import {
@@ -24,6 +25,7 @@ import { RequiredAuth, CurrentUser } from './lib';
 import { AuthResponseDto, LoginDto, RegistrationDto, TokensDto } from './dto';
 import { UserTokenPayload } from './types';
 
+@ApiTags('Авторизация')
 @Controller('auth')
 export class AuthController {
 	constructor(
