@@ -1,11 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
-import {
-	BadRequestException,
-	ForbiddenException,
-	UnauthorizedException
-} from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { compare, hash } from 'bcrypt';
 import { UsersService } from '@/users/users.service';
 import { AuthService } from './auth.service';
@@ -97,30 +93,11 @@ describe('AuthService', () => {
 			spyGenerateTokens.mockRestore();
 		});
 
-		test('should call extractToken with rawToken', async () => {
-			await authService.getMe(token);
-
-			expect(extractToken).toHaveBeenCalledTimes(1);
-			expect(extractToken).toHaveBeenCalledWith(token);
-		});
-
-		test('should throw error if extractToken return null', async () => {
-			(extractToken as jest.Mock).mockReturnValueOnce(null);
-			expect(() => authService.getMe(token)).rejects.toThrowError(
-				new BadRequestException('Invalid authorization header', {
-					cause: token,
-				})
-			);
-
-			expect(extractToken).toHaveBeenCalledTimes(1);
-			expect(extractToken).toHaveBeenCalledWith(token);
-		});
-
-		test('should call AuthService.extractUser with extracted token', async () => {
+		test('should call AuthService.extractUser with token', async () => {
 			await authService.getMe(token);
 
 			expect(authService.extractUser).toHaveBeenCalledTimes(1);
-			expect(authService.extractUser).toHaveBeenCalledWith(extractedToken);
+			expect(authService.extractUser).toHaveBeenCalledWith(token);
 		});
 
 		test('should throw error if AuthService.extractUser thrown', async () => {
