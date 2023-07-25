@@ -4,7 +4,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { Test } from '@nestjs/testing';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { FilesService } from '@/files';
+import { FilesService } from '@bricks-ether/server-utils/nestjs';
 import { UsersService } from './users.service';
 import { UserRepository } from './repositories';
 import { User } from './entities';

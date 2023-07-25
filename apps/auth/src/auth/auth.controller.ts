@@ -11,10 +11,9 @@ import {
 	ApiTags,
 	ApiUnauthorizedResponse
 } from '@nestjs/swagger';
+import { Cookie, CookieData } from '@bricks-ether/server-utils/nestjs';
 import {
 	COOKIE_NAME,
-	Cookie,
-	CookieData,
 	RequiredCookie,
 	StatusResponseDto,
 	createStatusResponse

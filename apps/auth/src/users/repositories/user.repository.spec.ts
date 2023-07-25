@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable sonarjs/no-duplicate-string */
 import { Test } from '@nestjs/testing';
-import { DatabaseService } from '@/database';
+import { PrismaDatabaseService } from '@bricks-ether/server-utils/nestjs';
 import { User } from '../entities';
 import { CreateUser, UpdateUser } from '../types';
 import { UserRepository } from './user.repository';
@@ -17,14 +17,14 @@ const error = new Error('Mock error');
 
 describe('UserRepository', () => {
 	let repository: UserRepository;
-	let databaseService: jest.MockedObjectDeep<DatabaseService>;
+	let databaseService: jest.MockedObjectDeep<PrismaDatabaseService>;
 
 	beforeAll(async () => {
 		const module = await Test.createTestingModule({
 			providers: [
 				UserRepository,
 				{
-					provide: DatabaseService,
+					provide: PrismaDatabaseService,
 					useValue: {
 						user: {
 							findUnique: jest.fn().mockResolvedValue(mockUser),
@@ -38,7 +38,7 @@ describe('UserRepository', () => {
 		}).compile();
 
 		repository = module.get(UserRepository);
-		databaseService = module.get(DatabaseService);
+		databaseService = module.get(PrismaDatabaseService);
 	});
 
 	afterEach(() => {

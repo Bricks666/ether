@@ -3,7 +3,7 @@ import {
 	Injectable,
 	NotFoundException
 } from '@nestjs/common';
-import { FilesService } from '@/files';
+import { FilesService } from '@bricks-ether/server-utils/nestjs';
 import { UserRepository } from './repositories';
 import type { CreateUser, SelectUser, UpdateUser } from './types';
 import type { User } from './entities';
