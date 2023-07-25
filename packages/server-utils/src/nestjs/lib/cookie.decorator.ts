@@ -1,6 +1,12 @@
 import { type ExecutionContext, createParamDecorator } from '@nestjs/common';
-import { BASE_COOKIE_OPTIONS } from '../consts';
 import type { CookieOptions, Request, Response } from 'express';
+
+export const BASE_COOKIE_OPTIONS: CookieOptions = {
+	maxAge: 1000 * 60 * 60 * 24 * 30,
+	sameSite: 'lax',
+	secure: true,
+	httpOnly: true,
+};
 
 export const cookieFactory = <T>(
 	name: string,

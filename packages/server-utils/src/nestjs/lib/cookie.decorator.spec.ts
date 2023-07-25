@@ -1,6 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
-import { BASE_COOKIE_OPTIONS } from '@/shared';
-import { cookieFactory } from './cookie.decorator';
+import { cookieFactory, BASE_COOKIE_OPTIONS } from './cookie.decorator';
 
 const cookieName = 'cookie-name';
 const otherCookieName = 'other-cookie-name';

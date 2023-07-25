@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '@/database';
+import { PrismaDatabaseService } from '@bricks-ether/server-utils/nestjs';
 import type { CreateUser, SelectUser, UpdateUser } from '../types';
 import type { User } from '../entities';
 
 @Injectable()
 export class UserRepository {
-	constructor(private readonly databaseService: DatabaseService) {}
+	constructor(private readonly databaseService: PrismaDatabaseService) {}
 
 	async getOne(params: SelectUser): Promise<User | null> {
 		const user = await this.databaseService.user.findUnique({

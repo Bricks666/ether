@@ -1,10 +1,12 @@
 import { resolve } from 'node:path';
+import {
+	FilesModule,
+	PrismaDatabaseModule
+} from '@bricks-ether/server-utils/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { DatabaseModule } from './database';
 import { UsersModule } from './users/users.module';
-import { FilesModule } from './files';
 import { STATIC_DIR, STATIC_PATH } from './shared';
 import { AuthModule } from './auth/auth.module';
 
@@ -16,7 +18,7 @@ const STATIC_DIR_PATH = resolve(__dirname, STATIC_DIR);
 			isGlobal: true,
 			envFilePath: ['.env', '.env.local'],
 		}),
-		DatabaseModule.forRoot({
+		PrismaDatabaseModule.forRoot({
 			isGlobal: true,
 		}),
 		FilesModule.forRoot({

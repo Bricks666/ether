@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import type { Request } from 'express';
 import type { Meta } from 'express-validator';
 
@@ -9,7 +10,7 @@ export const objectExistFile = (_: unknown, meta: Meta) => {
 
 export const isObject = (
 	files: Request['files']
-): files is { [fieldname: string]: globalThis.Express.Multer.File[] } => {
+): files is { [fieldname: string]: Express.Multer.File[] } => {
 	return !!files && !Array.isArray(files);
 };
 
