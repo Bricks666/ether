@@ -1,14 +1,26 @@
 {
 	"compilerOptions": {
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"removeComments": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
+		"noEmit": true,
 		"target": "ES2022",
-		"module": "ES2022",
-		"moduleResolution": "bundler",
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"strict": true,
-		"declaration": true,
-		"declarationDir": "./dist"
+		"outDir": "./dist",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"incremental": true,
+		"skipLibCheck": true,
+		"strictNullChecks": false,
+		"noImplicitAny": false,
+		"strictBindCallApply": false,
+		"forceConsistentCasingInFileNames": false,
+		"noFallthroughCasesInSwitch": false,
+		"types": ["jest", "multer"]
 	},
-	"include": ["./src/**/*"],
-	"exclude": ["dist"]
+	"include": ["./src/**/*.ts", "./src**/*.spec.ts"]
 }
