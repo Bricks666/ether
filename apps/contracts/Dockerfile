@@ -1,30 +1,22 @@
-FROM node:lts-alpine as build
-
+FROM node:alpine as builder
 WORKDIR /app
-
-COPY tsconfig.json .
-COPY package*.json .
-RUN npm i --ignore-scripts
-
-COPY ./rollup.config.js .
-
-COPY ./src ./src
-
+COPY package.json /app/package.json
+RUN apk --no-cache add --virtual builds-deps build-base python3
+RUN npm install
+COPY ./prisma /app/prisma
+RUN npx prisma generate
+COPY . /app
 RUN npm run build
 
-FROM node:lts-alpine
-
+FROM node:alpine
 WORKDIR /app
-
-COPY package*.json .
-RUN npm i --omit dev --ignore-scripts
-
-# Иначе сыпится ошибка с отсутствием бинарников для sqlite
-RUN npm uninstall sqlite3
-RUN npm install sqlite3 -S
-
-COPY --from=build /app/dist/* .
-
-EXPOSE ${PORT}
-
-CMD [ "npm", "run", "start" ]
+COPY --from=builder /app/package*.json ./
+RUN npm i prisma
+RUN npm i --omit=dev --ignore-scripts
+RUN npm rebuild
+COPY --from=builder /app/prisma ./prisma
+RUN npx prisma generate
+COPY --from=builder /app/dist ./
+EXPOSE 5000
+USER node
+CMD ["npm", "run", "start:prod"]
