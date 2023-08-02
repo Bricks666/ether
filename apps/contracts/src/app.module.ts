@@ -1,6 +1,7 @@
 import { PrismaDatabaseModule } from '@bricks-ether/server-utils/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ContractsModule } from './contracts/contracts.module';
 
 @Module({
 	imports: [
@@ -10,7 +11,8 @@ import { ConfigModule } from '@nestjs/config';
 		}),
 		PrismaDatabaseModule.forRoot({
 			isGlobal: true,
-		})
+		}),
+		ContractsModule,
 	],
 	controllers: [],
 	providers: [],

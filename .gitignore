@@ -3,3 +3,4 @@ geth
 *.db
 dist
 node_modules
+*.old
