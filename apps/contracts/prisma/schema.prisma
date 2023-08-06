@@ -11,34 +11,26 @@ datasource db {
 }
 
 model Contract {
-  id           String    @id @default(uuid()) @db.Uuid()
-  ownerId      String    @db.Uuid()
-  name         String
-  abiPath      String
-  bytecodePath String
-  private      Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @updatedAt
-  deploy       Deploy[]
+  id        String    @id @default(uuid()) @db.Uuid()
+  ownerId   String    @db.Uuid()
+  name      String
+  private   Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  deploy    Deploy[]
 }
 
 model Deploy {
-  id              String    @id @default(uuid()) @db.Uuid()
-  contractId      String    @db.Uuid()
+  id              String   @id @default(uuid()) @db.Uuid()
+  contractId      String   @db.Uuid()
   name            String
-  walletId        String    @db.Uuid()
+  walletId        String   @db.Uuid()
+  compiledPath    String
   deployedAddress String
-  deployedAt      DateTime  @default(now())
-  private         Boolean   @default(false)
-  contract        Contract  @relation(fields: [contractId], references: [id])
-  calling         Calling[]
-  wallet          Wallet    @relation(fields: [walletId], references: [id])
-}
-
-model Calling {
-  deployId String @id @db.Uuid()
-  times    Int    @default(0)
-  deploy   Deploy @relation(fields: [deployId], references: [id])
+  deployedAt      DateTime @default(now())
+  private         Boolean  @default(false)
+  contract        Contract @relation(fields: [contractId], references: [id])
+  wallet          Wallet   @relation(fields: [walletId], references: [id])
 }
 
 model Wallet {

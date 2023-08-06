@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Contract as ContractModel } from '@prisma/client';
 import {
@@ -5,8 +6,7 @@ import {
 	IsDateString,
 	IsOptional,
 	IsString,
-	IsUUID,
-	IsUrl,
+	IsUUID
 } from 'class-validator';
 
 export class Contract implements ContractModel {
@@ -40,20 +40,6 @@ export class Contract implements ContractModel {
 	@IsBoolean()
 	@IsOptional()
 	declare private: boolean;
-
-	@ApiProperty({
-		type: String,
-		description: 'Path to compiled abi',
-	})
-	@IsUrl()
-	declare abiPath: string;
-
-	@ApiProperty({
-		type: String,
-		description: 'Path to compiled bytecode',
-	})
-	@IsUrl()
-	declare bytecodePath: string;
 
 	@ApiProperty({
 		type: Date,

@@ -1,7 +1,11 @@
-import { PrismaDatabaseModule } from '@bricks-ether/server-utils/nestjs';
+import {
+	FilesModule,
+	PrismaDatabaseModule
+} from '@bricks-ether/server-utils/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ContractsModule } from './contracts/contracts.module';
+import { env } from './shared/config';
 
 @Module({
 	imports: [
@@ -12,7 +16,11 @@ import { ContractsModule } from './contracts/contracts.module';
 		PrismaDatabaseModule.forRoot({
 			isGlobal: true,
 		}),
-		ContractsModule,
+		FilesModule.forRoot({
+			dir: env.STATIC_DIR_PATH,
+			clientPath: env.STATIC_PATH,
+		}),
+		ContractsModule
 	],
 	controllers: [],
 	providers: [],

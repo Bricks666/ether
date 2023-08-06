@@ -1,10 +1,10 @@
 import { PrismaDatabaseService } from '@bricks-ether/server-utils/nestjs';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { DatabasePagination } from '@/shared/dto';
 import { SelectContract } from '../types';
 import { Contract } from '../entities';
 import { CreateContractDto, UpdateContractDto } from '../dto';
-import { DatabasePagination } from '@/shared/dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ContractRepository {
@@ -36,7 +36,7 @@ export class ContractRepository {
 
 	async update(
 		params: SelectContract,
-		data: CreateContractData
+		data: UpdateContractData
 	): Promise<Contract> {
 		return this.databaseService.contract.update({
 			where: params,
@@ -53,13 +53,8 @@ export class ContractRepository {
 
 export interface CreateContractData extends CreateContractDto {
 	readonly ownerId: string;
-	readonly abiPath: string;
-	readonly bytecodePath: string;
 }
 
-export interface UpdateContractData extends UpdateContractDto {
-	readonly abiPath?: string;
-	readonly bytecodePath?: string;
-}
+export interface UpdateContractData extends UpdateContractDto {}
 
 export interface GetAllContractFilters extends Prisma.ContractWhereInput {}

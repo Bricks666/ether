@@ -1,24 +1,40 @@
 import {
 	ForbiddenException,
 	Injectable,
-	NotFoundException,
+	NotFoundException
 } from '@nestjs/common';
+import { NormalizedPagination, databasePagination } from '@/shared/dto';
 import { ContractRepository, UpdateContractData } from './repositories';
 import { CreateContractDto } from './dto';
 import { Contract } from './entities';
-import { NormalizedPagination, databasePagination } from '@/shared/dto';
 import { SelectContract } from './types';
 
 @Injectable()
 export class ContractsService {
 	constructor(private readonly contractRepository: ContractRepository) {}
 
+	/**
+	 * Get all public contracts
+	 * @public
+	 * @async
+	 * @param {NormalizedPagination} pagination request pagination
+	 * @returns {Promise<Contract[]>}
+	 */
 	async getAll(pagination: NormalizedPagination): Promise<Contract[]> {
 		return this.contractRepository.getAll(databasePagination(pagination), {
 			private: false,
 		});
 	}
 
+	/**
+	 * Get all contracts allowed to user.
+	 * Return all contracts allowed to user(all public and his private)
+	 * @public
+	 * @async
+	 * @param {NormalizedPagination} pagination request pagination
+	 * @param {string} userId uuid of requested user
+	 * @returns {Promise<Contract[]>}
+	 */
 	async getAllByUser(
 		pagination: NormalizedPagination,
 		userId: string
@@ -33,11 +49,21 @@ export class ContractsService {
 						ownerId: userId,
 					},
 					private: false,
-				},
+				}
 			],
 		});
 	}
 
+	/**
+	 * Get one contract
+	 * @public
+	 * @async
+	 * @param {SelectContract} params which contract select
+	 * @param {string} userId uuid of requested user
+	 * @returns {Promise<Contract>}
+	 * @throws {NotFoundException} contract doesn't exist
+	 * @throws {ForbiddenException} request private contract and user is not an owner
+	 */
 	async getOne(params: SelectContract, userId: string): Promise<Contract> {
 		const contract = await this.contractRepository.getOne(params);
 
@@ -54,23 +80,75 @@ export class ContractsService {
 		return contract;
 	}
 
-	createFromSource(
-		dto: CreateContractDto,
-		userId: string,
-		source: globalThis.Express.Multer.File
-	) {
-		return 'This action adds a new contract';
+	/**
+	 * Create new contract
+	 * @public
+	 * @async
+	 * @param {CreateContractDto} dto data for creation
+	 * @param {string} userId uuid of owner
+	 * @returns {Promise<Contract>}
+	 */
+	async create(dto: CreateContractDto, userId: string): Promise<Contract> {
+		return this.contractRepository.create({
+			...dto,
+			ownerId: userId,
+		});
 	}
 
-	createFromPrecompiled(dto: CreateContractDto, userId: string) {
-		return 'This action adds a new contract';
+	/**
+	 * Update existing contract or throw error
+	 * @public
+	 * @async
+	 * @param {SelectContract} params which contract select
+	 * @param {UpdateContractData} dto new data for contract
+	 * @returns {Promise<Contract>}
+	 * @throws {NotFoundException}
+	 */
+	async update(
+		params: SelectContract,
+		dto: UpdateContractData
+	): Promise<Contract> {
+		const contract = await this.contractRepository.update(params, dto);
+
+		if (!contract) {
+			throw new NotFoundException(`Contract ${params.id} not found`);
+		}
+
+		return contract;
 	}
 
-	update(params: SelectContract, dto: UpdateContractData) {
-		return `This action updates a #${id} contract`;
+	/**
+	 * Remove contract
+	 * @public
+	 * @async
+	 * @param {SelectContract} params which contract select
+	 * @returns {Promise<Contract>}
+	 * @throws {NotFoundException}
+	 */
+	async remove(params: SelectContract): Promise<Contract> {
+		const contract = await this.contractRepository.remove(params);
+
+		if (!contract) {
+			throw new NotFoundException(`Contract ${params.id} not found`);
+		}
+
+		return contract;
 	}
 
-	remove(params: SelectContract) {
-		return `This action removes a #${id} contract`;
-	}
+	/**
+	 * @todo move to deploy
+	 */
+	// private async compile(
+	// 	source: globalThis.Express.Multer.File
+	// ): Promise<CompiledContracts> {
+	// 	const file = new Blob([source.buffer]);
+
+	// 	const formData = new FormData();
+
+	// 	formData.append('file', file);
+
+	// 	return compileRequest('/compile', {
+	// 		body: formData,
+	// 	});
+	// }
 }
