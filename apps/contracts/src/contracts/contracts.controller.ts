@@ -3,43 +3,55 @@ import {
 	Get,
 	Post,
 	Body,
-	Patch,
 	Param,
-	Delete
+	Query,
+	UseGuards
 } from '@nestjs/common';
+import { PaginationDto, normalizePagination } from '@/shared/dto';
+import {
+	AccessTokenGuard,
+	ApiTokenGuard,
+	AuthorizedUser,
+	RequiredAccessToken
+} from '@/security/lib';
+import { User } from '@/security/types';
+import { OneOfGuard, SetOneOf } from '@/shared/lib';
+import { CreateContractDto } from './dto';
+import { Contract } from './entities';
 import { ContractsService } from './contracts.service';
-import { CreateContractDto } from './dto/create-contract.dto';
-import { UpdateContractDto } from './dto/update-contract.dto';
 
 @Controller('contracts')
 export class ContractsController {
 	constructor(private readonly contractsService: ContractsService) {}
 
-	@Post()
-	create(@Body() createContractDto: CreateContractDto) {
-		return this.contractsService.create(createContractDto);
+	@Get('/')
+	async findAll(@Query() query: PaginationDto): Promise<Contract[]> {
+		return this.contractsService.getAll(normalizePagination(query));
 	}
 
-	@Get()
-	findAll() {
-		return this.contractsService.findAll();
+	@SetOneOf(ApiTokenGuard, AccessTokenGuard)
+	@UseGuards(OneOfGuard)
+	@Get('/:id')
+	async findOne(@Param('id') id: string, @AuthorizedUser() user: User) {
+		return this.contractsService.getOne({ id, }, user.id);
 	}
 
-	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.contractsService.findOne(+id);
+	@RequiredAccessToken()
+	@Post('/')
+	async create(@Body() dto: CreateContractDto, @AuthorizedUser() user: User) {
+		return this.contractsService.create(dto, user.id);
 	}
 
-	@Patch(':id')
-	update(
-		@Param('id') id: string,
-		@Body() updateContractDto: UpdateContractDto
-	) {
-		return this.contractsService.update(+id, updateContractDto);
-	}
+	// @Patch('/:id')
+	// async update(
+	// 	@Param('id') id: string,
+	// 	@Body() updateContractDto: UpdateContractDto
+	// ) {
+	// 	return this.contractsService.update(+id, updateContractDto);
+	// }
 
-	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.contractsService.remove(+id);
-	}
+	// @Delete('/:id')
+	// async remove(@Param('id') id: string) {
+	// 	return this.contractsService.remove(+id);
+	// }
 }

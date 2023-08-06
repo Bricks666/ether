@@ -1,19 +1,12 @@
-import { join } from 'path';
 import { Module } from '@nestjs/common';
-import { FilesModule } from '@bricks-ether/server-utils/nestjs';
-import { env } from '@/shared/config';
+import { SecurityModule } from '@/security/security.module';
 import { ContractsService } from './contracts.service';
 import { ContractsController } from './contracts.controller';
+import { ContractRepository } from './repositories';
 
 @Module({
-	imports: [
-		FilesModule.forRoot({
-			isGlobal: false,
-			dir: join(env.STATIC_DIR_PATH, 'contracts'),
-			clientPath: join(env.STATIC_PATH, 'contracts'),
-		})
-	],
+	imports: [SecurityModule],
 	controllers: [ContractsController],
-	providers: [ContractsService],
+	providers: [ContractsService, ContractRepository],
 })
 export class ContractsModule {}
