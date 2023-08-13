@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ContractsModule } from './contracts/contracts.module';
 import { env } from './shared/config';
 import { SecurityModule } from './security/security.module';
+import { DeploysModule } from './deploys/deploys.module';
 
 @Module({
 	imports: [
@@ -22,7 +23,8 @@ import { SecurityModule } from './security/security.module';
 			clientPath: env.STATIC_PATH,
 		}),
 		ContractsModule,
-		SecurityModule
+		SecurityModule,
+		DeploysModule
 	],
 	controllers: [],
 	providers: [],

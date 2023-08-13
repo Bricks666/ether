@@ -34,7 +34,6 @@ async function bootstrap() {
 		.addCookieAuth(process.env.COOKIE_NAME)
 		.addBearerAuth()
 		.addServer('http://localhost:5000')
-		.addTag('api')
 		.build();
 
 	const document = SwaggerModule.createDocument(app, config);
