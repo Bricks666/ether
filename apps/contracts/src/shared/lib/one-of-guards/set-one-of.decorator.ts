@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 
 const SET_ON_OF_KEY = 'set-one-of';
 
-interface Guard {
+export interface Guard {
 	new (...args: any[]): CanActivate;
 }
 

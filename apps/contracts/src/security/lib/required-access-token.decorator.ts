@@ -4,7 +4,7 @@ import { AccessTokenGuard } from './access-token.guard';
 
 export const RequiredAccessToken = () => {
 	return applyDecorators(
-		ApiBearerAuth,
+		ApiBearerAuth(),
 		UseGuards(AccessTokenGuard),
 		ApiForbiddenResponse({ description: 'Invalid token', })
 	);

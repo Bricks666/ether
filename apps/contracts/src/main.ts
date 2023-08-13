@@ -3,7 +3,7 @@ import * as validatorPackage from 'class-validator';
 import * as transformerPackage from 'class-transformer';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { AppModule } from '@/app.module';
 
 async function bootstrap() {
@@ -28,9 +28,9 @@ async function bootstrap() {
 	app.setGlobalPrefix('api');
 
 	const config = new DocumentBuilder()
-		.setTitle('Документация по API сервера "Task manager"')
+		.setTitle('Документация по API сервера "Contracts manager"')
 		.setDescription('Документация по API приложения дел')
-		.setVersion('1.0.0')
+		.setVersion('2.0.0')
 		.addCookieAuth(process.env.COOKIE_NAME)
 		.addBearerAuth()
 		.addServer('http://localhost:5000')
