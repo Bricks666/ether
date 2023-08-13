@@ -6,7 +6,8 @@ import {
 	IsBoolean,
 	IsUrl,
 	IsDateString,
-	IsOptional
+	IsOptional,
+	IsArray
 } from 'class-validator';
 import { Deploy as DeployModel } from '@prisma/client';
 
@@ -40,13 +41,29 @@ export class Deploy implements DeployModel {
 	declare walletId: string;
 
 	@ApiProperty({
+		type: String,
+		isArray: true,
+		description: 'deployed params',
+	})
+	@IsOptional()
+	@IsArray()
+	declare contractArguments: string[];
+
+	@ApiProperty({
+		type: String,
+		description: 'deployed contract name',
+	})
+	@IsString()
+	declare contractName: string;
+
+	@ApiProperty({
 		type: Boolean,
 		description:
 			'is private deploy or not. Private deploy allowed only for contract owner',
 	})
 	@IsOptional()
 	@IsBoolean()
-	declare private: boolean;
+	declare isPrivate: boolean;
 
 	@ApiProperty({
 		type: String,

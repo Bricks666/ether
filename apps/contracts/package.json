@@ -13,7 +13,7 @@
 		"start:prod": "npx prisma migrate deploy && node ./main.js"
 	},
 	"dependencies": {
-		"@bricks-ether/server-utils": "^2.0.8",
+		"@bricks-ether/server-utils": "^2.1.0",
 		"@nestjs/common": "^10.1.3",
 		"@nestjs/config": "^3.0.0",
 		"@nestjs/core": "^10.1.3",
@@ -27,7 +27,8 @@
 		"express": "^4.18.2",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^7.8.1",
-		"swagger-ui-express": "^5.0.0"
+		"swagger-ui-express": "^5.0.0",
+		"web3": "^4.0.3"
 	},
 	"devDependencies": {
 		"@nestjs/cli": "^10.1.11",

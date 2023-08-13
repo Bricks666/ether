@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
 	Controller,
 	Get,
@@ -34,7 +33,7 @@ import { OneOfGuards } from '@/shared/lib';
 import { PaginationDto } from '@/shared/dto';
 import { User } from '@/security/types';
 import { Deploy } from './entities';
-import { CreateDeployDto, UpdateDeployDto } from './dto';
+import { CreateDeployDto, RedeployDeployDto, UpdateDeployDto } from './dto';
 import { DeploysService } from './deploys.service';
 
 const ContractUuidParam = () => {
@@ -80,8 +79,8 @@ export class DeploysController {
 		@Param('contractUuid', ParseUUIDPipe) contractUuid: string,
 		@Query() pagination: PaginationDto,
 		@AuthorizedUser() user: User
-	): string {
-		return this.deploysService.findAll();
+	): Promise<Deploy[]> {
+		return this.deploysService.getAll(contractUuid, pagination, user.id);
 	}
 
 	@ApiOperation({
@@ -107,10 +106,10 @@ export class DeploysController {
 	@Get('/latest')
 	getLatest(
 		@Param('contractUuid', ParseUUIDPipe) contractUuid: string,
-		@Query('deploy', ParseUUIDPipe) deployUuid?: string | null,
-		@AuthorizedUser() user: User
-	) {
-		return this.deploysService.findOne(+deployUuid);
+		@AuthorizedUser() user: User,
+		@Query('deploy', ParseUUIDPipe) deployUuid?: string | null
+	): Promise<Deploy> {
+		return this.deploysService.getLatest(contractUuid, user.id, deployUuid);
 	}
 
 	@ApiOperation({
@@ -130,8 +129,8 @@ export class DeploysController {
 		@Param('contractUuid', ParseUUIDPipe) contractUuid: string,
 		@Param('id', ParseUUIDPipe) id: string,
 		@AuthorizedUser() user: User
-	) {
-		return this.deploysService.findOne(+id);
+	): Promise<Deploy> {
+		return this.deploysService.getOne(contractUuid, id, user.id);
 	}
 
 	@ApiOperation({
@@ -157,12 +156,16 @@ export class DeploysController {
 		@Body() dto: CreateDeployDto,
 		@UploadedFile() contract: Express.Multer.File,
 		@AuthorizedUser() user: User
-	) {
-		return this.deploysService.create(dto);
+	): Promise<Deploy> {
+		return this.deploysService.create(contractUuid, dto, contract, user.id);
 	}
 
 	@ApiOperation({
 		summary: 'deploy contract based on already deployed',
+	})
+	@ApiBody({
+		type: RedeployDeployDto,
+		description: 'overwritten params',
 	})
 	@ContractUuidParam()
 	@DeployUuid()
@@ -171,10 +174,10 @@ export class DeploysController {
 	redeploy(
 		@Param('contractUuid', ParseUUIDPipe) contractUuid: string,
 		@Param('id', ParseUUIDPipe) id: string,
-		@Body() dto: CreateDeployDto,
+		@Body() dto: RedeployDeployDto,
 		@AuthorizedUser() user: User
-	) {
-		return this.deploysService.create(dto);
+	): Promise<Deploy> {
+		return this.deploysService.redeploy(contractUuid, id, dto, user.id);
 	}
 
 	@ApiOperation({ summary: 'update info about deploy', })
@@ -192,11 +195,12 @@ export class DeploysController {
 	@RequiredAccessToken()
 	@Patch('/:id')
 	update(
+		@Param('contractUuid', ParseUUIDPipe) contractUuid: string,
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: UpdateDeployDto,
 		@AuthorizedUser() user: User
-	) {
-		return this.deploysService.update(+id, dto);
+	): Promise<Deploy> {
+		return this.deploysService.update(contractUuid, id, dto, user.id);
 	}
 
 	@ApiOperation({ summary: 'remove deploy', })
@@ -213,8 +217,8 @@ export class DeploysController {
 		@Param('contractUuid', ParseUUIDPipe) contractUuid: string,
 		@Param('id', ParseUUIDPipe) id: string,
 		@AuthorizedUser() user: User
-	) {
-		return this.deploysService.remove(+id);
+	): Promise<boolean> {
+		return this.deploysService.remove(contractUuid, id, user.id);
 	}
 
 	@ApiOperation({ summary: 'remove all deploys in contract', })
@@ -228,9 +232,8 @@ export class DeploysController {
 	@Delete('/all')
 	removeAll(
 		@Param('contractUuid', ParseUUIDPipe) contractUuid: string,
-		@Param('id', ParseUUIDPipe) id: string,
 		@AuthorizedUser() user: User
-	) {
-		return this.deploysService.remove(+id);
+	): Promise<boolean> {
+		return this.deploysService.removeAll(contractUuid, user.id);
 	}
 }

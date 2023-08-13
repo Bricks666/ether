@@ -73,7 +73,7 @@ export class ContractsService {
 			);
 		}
 
-		if (contract.private && contract.ownerId !== userId) {
+		if (contract.isPrivate && contract.ownerId !== userId) {
 			throw new ForbiddenException("You can't take this contract");
 		}
 

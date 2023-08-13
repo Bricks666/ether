@@ -39,7 +39,7 @@ export class Contract implements ContractModel {
 	})
 	@IsBoolean()
 	@IsOptional()
-	declare private: boolean;
+	declare isPrivate: boolean;
 
 	@ApiProperty({
 		type: Date,

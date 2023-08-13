@@ -5,7 +5,7 @@ CREATE TABLE "Contract" (
     "name" TEXT NOT NULL,
     "abiPath" TEXT NOT NULL,
     "bytecodePath" TEXT NOT NULL,
-    "private" BOOLEAN NOT NULL DEFAULT false,
+    "isPrivate" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
 
@@ -20,7 +20,7 @@ CREATE TABLE "Deploy" (
     "walletId" UUID NOT NULL,
     "deployedAddress" TEXT NOT NULL,
     "deployedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "private" BOOLEAN NOT NULL DEFAULT false,
+    "isPrivate" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Deploy_pkey" PRIMARY KEY ("id")
 );
