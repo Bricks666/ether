@@ -228,7 +228,7 @@ export class DeploysService {
 
 		const contract = new web3.eth.Contract(abi);
 
-		const wallet = await this.walletsService.getOne(walletId, userId);
+		const wallet = await this.walletsService.getOne({ id: walletId, }, userId);
 
 		const personal = new Personal(env.NODE_HOST);
 		await personal.unlockAccount(wallet.address, wallet.password, 0);

@@ -7,7 +7,8 @@ import {
 	Param,
 	Query,
 	Patch,
-	Delete
+	Delete,
+	ParseUUIDPipe
 } from '@nestjs/common';
 import {
 	ApiBody,
@@ -25,6 +26,14 @@ import { CreateContractDto, UpdateContractDto } from './dto';
 import { Contract } from './entities';
 import { ContractsService } from './contracts.service';
 
+const ApiIdParam = () => {
+	return ApiParam({
+		type: String,
+		name: 'id',
+		description: 'contract uuid',
+	});
+};
+
 @ApiTags('contracts')
 @RequiredAccessToken()
 @Controller('contracts')
@@ -38,30 +47,29 @@ export class ContractsController {
 		description: 'Contracts',
 	})
 	@Get('/')
-	async findAll(@Query() query: PaginationDto): Promise<Contract[]> {
+	async getAll(@Query() query: PaginationDto): Promise<Contract[]> {
 		return this.contractsService.getAll(normalizePagination(query));
 	}
 
 	@ApiOperation({
 		summary: 'Take one contract by uuid',
 	})
-	@ApiParam({
-		type: Number,
-		name: 'id',
-		description: 'contract uuid',
-	})
+	@ApiIdParam()
 	@ApiOkResponse({
 		type: Contract,
 		description: 'Requested contract',
 	})
 	@ApiForbiddenResponse({
-		description: 'You dont have access to this contract',
+		description: "You don't have access to this contract",
 	})
 	@ApiNotFoundResponse({
 		description: 'There is not this contract',
 	})
 	@Get('/:id')
-	async findOne(@Param('id') id: string, @AuthorizedUser() user: User) {
+	async getOne(
+		@Param('id') id: string,
+		@AuthorizedUser() user: User
+	): Promise<Contract> {
 		return this.contractsService.getOne({ id, }, user.id);
 	}
 
@@ -74,18 +82,17 @@ export class ContractsController {
 	})
 	@ApiOkResponse()
 	@Post('/')
-	async create(@Body() dto: CreateContractDto, @AuthorizedUser() user: User) {
+	async create(
+		@Body() dto: CreateContractDto,
+		@AuthorizedUser() user: User
+	): Promise<Contract> {
 		return this.contractsService.create(dto, user.id);
 	}
 
 	@ApiOperation({
 		summary: 'Update contract data',
 	})
-	@ApiParam({
-		type: Number,
-		name: 'id',
-		description: 'contract uuid',
-	})
+	@ApiIdParam()
 	@ApiBody({
 		type: UpdateContractDto,
 		description: 'New contract data',
@@ -93,22 +100,24 @@ export class ContractsController {
 	@ApiOkResponse()
 	@ApiNotFoundResponse()
 	@Patch('/:id')
-	async update(@Param('id') id: string, @Body() dto: UpdateContractDto) {
+	async update(
+		@Param('id') id: string,
+		@Body() dto: UpdateContractDto
+	): Promise<Contract> {
 		return this.contractsService.update({ id, }, dto);
 	}
 
 	@ApiOperation({
 		summary: 'Remove contract data',
 	})
-	@ApiParam({
-		type: Number,
-		name: 'id',
-		description: 'contract uuid',
-	})
+	@ApiIdParam()
 	@ApiOkResponse()
 	@ApiNotFoundResponse()
 	@Delete('/:id')
-	async remove(@Param('id') id: string) {
-		return this.contractsService.remove({ id, });
+	async remove(
+		@Param('id', ParseUUIDPipe) id: string,
+		@AuthorizedUser() user: User
+	): Promise<boolean> {
+		return this.contractsService.remove({ id, }, user.id);
 	}
 }

@@ -4,6 +4,7 @@ import {
 	NotFoundException
 } from '@nestjs/common';
 import { NormalizedPagination, databasePagination } from '@/shared/dto';
+import { DeploysService } from '@/deploys/deploys.service';
 import { ContractRepository, UpdateContractData } from './repositories';
 import { CreateContractDto } from './dto';
 import { Contract } from './entities';
@@ -11,7 +12,10 @@ import { SelectContract } from './types';
 
 @Injectable()
 export class ContractsService {
-	constructor(private readonly contractRepository: ContractRepository) {}
+	constructor(
+		private readonly contractRepository: ContractRepository,
+		private readonly deploysService: DeploysService
+	) {}
 
 	/**
 	 * Get all public contracts
@@ -22,7 +26,7 @@ export class ContractsService {
 	 */
 	async getAll(pagination: NormalizedPagination): Promise<Contract[]> {
 		return this.contractRepository.getAll(databasePagination(pagination), {
-			private: false,
+			isPrivate: false,
 		});
 	}
 
@@ -48,7 +52,7 @@ export class ContractsService {
 					NOT: {
 						ownerId: userId,
 					},
-					private: false,
+					isPrivate: false,
 				}
 			],
 		});
@@ -122,33 +126,19 @@ export class ContractsService {
 	 * @public
 	 * @async
 	 * @param {SelectContract} params which contract select
-	 * @returns {Promise<Contract>}
+	 * @param {string} userId
+	 * @returns {Promise<boolean>}
 	 * @throws {NotFoundException}
 	 */
-	async remove(params: SelectContract): Promise<Contract> {
+	async remove(params: SelectContract, userId: string): Promise<boolean> {
+		await this.deploysService.removeAll(params.id, userId);
+
 		const contract = await this.contractRepository.remove(params);
 
 		if (!contract) {
 			throw new NotFoundException(`Contract ${params.id} not found`);
 		}
 
-		return contract;
+		return !!contract;
 	}
-
-	/**
-	 * @todo move to deploy
-	 */
-	// private async compile(
-	// 	source: globalThis.Express.Multer.File
-	// ): Promise<CompiledContracts> {
-	// 	const file = new Blob([source.buffer]);
-
-	// 	const formData = new FormData();
-
-	// 	formData.append('file', file);
-
-	// 	return compileRequest('/compile', {
-	// 		body: formData,
-	// 	});
-	// }
 }

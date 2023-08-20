@@ -126,9 +126,9 @@ const createPrivacyFilters = (userId: string): Prisma.DeployWhereInput[] => {
 		{
 			contract: {
 				ownerId: userId,
-				private: false,
+				isPrivate: false,
 			},
-			private: false,
+			isPrivate: false,
 		}
 	];
 };

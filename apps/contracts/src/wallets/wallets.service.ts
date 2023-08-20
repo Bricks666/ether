@@ -1,27 +1,80 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
-import { CreateWalletDto } from './dto/create-wallet.dto';
-import { UpdateWalletDto } from './dto/update-wallet.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+	PaginationDto,
+	databasePagination,
+	normalizePagination
+} from '@/shared/dto';
+import { CreateWalletDto } from './dto';
+import { SelectWallet } from './types';
+import { WalletRepository } from './repositories';
+import { Wallet } from './entities';
 
 @Injectable()
 export class WalletsService {
-	async getAll(userId: string): Promise<any> {
-		return `This action returns all wallets`;
+	constructor(private readonly walletRepository: WalletRepository) {}
+
+	/**
+	 * Get wallets page of user
+	 * @public
+	 * @async
+	 * @param {PaginationDto} pagination
+	 * @param {string} userId
+	 * @returns {Promise<Wallet[]>}
+	 */
+	async getAll(pagination: PaginationDto, userId: string): Promise<Wallet[]> {
+		return this.walletRepository.getAll(
+			databasePagination(normalizePagination(pagination)),
+			userId
+		);
 	}
 
-	async getOne(id: string, userId: string): Promise<any> {
-		return `This action returns a #${id} wallet`;
+	/**
+	 * Get specific wallet of user
+	 * @public
+	 * @async
+	 * @throws {NotFoundException}
+	 * @param {SelectWallet} params
+	 * @param {string} userId
+	 * @returns  {Promise<Wallet>}
+	 */
+	async getOne(params: SelectWallet, userId: string): Promise<Wallet> {
+		const wallet = await this.walletRepository.getOne(params, userId);
+
+		if (!wallet) {
+			throw new NotFoundException('There is not this wallet');
+		}
+
+		return wallet;
 	}
 
-	async create(dto: CreateWalletDto, userId: string): Promise<any> {
-		return 'This action adds a new wallet';
+	/**
+	 * Create new wallet for user
+	 * @public
+	 * @async
+	 * @param {CreateWalletDto} dto
+	 * @param {string} userId
+	 * @returns {Promise<Wallet>}
+	 */
+	async create(dto: CreateWalletDto, userId: string): Promise<Wallet> {
+		return this.walletRepository.create(dto, userId);
 	}
 
-	async update(id: string, dto: UpdateWalletDto, userId: string): Promise<any> {
-		return `This action updates a #${id} wallet`;
-	}
+	/**
+	 * Remove wallet for user
+	 * @public
+	 * @async
+	 * @param {SelectWallet} params
+	 * @param {string} userId
+	 * @returns {Promise<boolean>}
+	 */
+	async remove(params: SelectWallet, userId: string): Promise<boolean> {
+		const wallet = await this.walletRepository.remove(params, userId);
 
-	async remove(id: string, userId: string): Promise<any> {
-		return `This action removes a #${id} wallet`;
+		if (!wallet) {
+			throw new NotFoundException('There is not this wallet');
+		}
+
+		return true;
 	}
 }
