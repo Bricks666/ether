@@ -26,6 +26,12 @@ export class ApiTokenGuard implements CanActivate {
 			throw new BadRequestException('There is not api token');
 		}
 
+		const isValid = this.securityService.validateApiToken(token);
+
+		if (!isValid) {
+			throw new BadRequestException('Token is not exist');
+		}
+
 		const user = this.securityService.extractUser(token);
 		(request as any).user = user;
 

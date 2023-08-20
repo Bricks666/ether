@@ -1,10 +1,12 @@
 import { PrismaDatabaseModule } from '@bricks-ether/server-utils/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { ContractsModule } from './contracts/contracts.module';
 import { SecurityModule } from './security/security.module';
 import { DeploysModule } from './deploys/deploys.module';
 import { WalletsModule } from './wallets/wallets.module';
+import { env } from './shared/config';
 
 @Module({
 	imports: [
@@ -14,6 +16,10 @@ import { WalletsModule } from './wallets/wallets.module';
 		}),
 		PrismaDatabaseModule.forRoot({
 			isGlobal: true,
+		}),
+		JwtModule.register({
+			global: true,
+			secret: env.TOKEN_SECRET,
 		}),
 		ContractsModule,
 		SecurityModule,

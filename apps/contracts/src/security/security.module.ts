@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { SecurityService } from './security.service';
+import { SecurityController } from './security.controller';
+import { TokenRepository } from './repositories';
 
 @Module({
-	imports: [JwtModule],
-	providers: [SecurityService],
+	providers: [SecurityService, TokenRepository],
 	exports: [SecurityService],
+	controllers: [SecurityController],
 })
 export class SecurityModule {}

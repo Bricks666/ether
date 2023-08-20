@@ -45,10 +45,10 @@ CREATE TABLE "Wallet" (
 
 -- CreateTable
 CREATE TABLE "Token" (
-    "owner" UUID NOT NULL,
+    "ownerId" UUID NOT NULL,
     "token" TEXT NOT NULL,
 
-    CONSTRAINT "Token_pkey" PRIMARY KEY ("owner")
+    CONSTRAINT "Token_pkey" PRIMARY KEY ("ownerId")
 );
 
 -- AddForeignKey
