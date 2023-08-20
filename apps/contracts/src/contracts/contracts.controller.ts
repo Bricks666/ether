@@ -233,7 +233,7 @@ export class ContractsController {
 	})
 	@NotFound()
 	@RequiredAccessToken()
-	@Delete('/all')
+	@Delete('/')
 	removeAll(
 		@Param('containerId', ParseUUIDPipe) containerId: string,
 		@AuthorizedUser() user: User

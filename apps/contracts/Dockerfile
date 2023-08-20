@@ -17,6 +17,5 @@ RUN npm rebuild
 COPY --from=builder /app/prisma ./prisma
 RUN npx prisma generate
 COPY --from=builder /app/dist ./
-EXPOSE 5000
-USER node
+EXPOSE ${PORT}
 CMD ["npm", "run", "start:prod"]
