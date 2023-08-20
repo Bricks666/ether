@@ -1,144 +1,261 @@
+/* eslint-disable no-undef */
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { FilesService } from '@bricks-ether/server-utils/nestjs';
+import Web3, { Address, Personal } from 'web3';
 import {
-	ForbiddenException,
-	Injectable,
-	NotFoundException
-} from '@nestjs/common';
-import { NormalizedPagination, databasePagination } from '@/shared/dto';
-import { DeploysService } from '@/deploys/deploys.service';
-import { ContractRepository, UpdateContractData } from './repositories';
-import { CreateContractDto } from './dto';
+	PaginationDto,
+	databasePagination,
+	normalizePagination
+} from '@/shared/dto';
+import { compileRequest } from '@/shared/lib';
+import { env } from '@/shared/config';
+import { WalletsService } from '@/wallets/wallets.service';
+import { ContractRepository } from './repositories';
 import { Contract } from './entities';
-import { SelectContract } from './types';
+import { CompiledContracts } from './types';
+import {
+	CreateContractDto,
+	RedeployContractDto,
+	UpdateContractDto
+} from './dto';
 
 @Injectable()
 export class ContractsService {
 	constructor(
 		private readonly contractRepository: ContractRepository,
-		private readonly deploysService: DeploysService
+		private readonly filesService: FilesService,
+		private readonly walletsService: WalletsService
 	) {}
 
-	/**
-	 * Get all public contracts
-	 * @public
-	 * @async
-	 * @param {NormalizedPagination} pagination request pagination
-	 * @returns {Promise<Contract[]>}
-	 */
-	async getAll(pagination: NormalizedPagination): Promise<Contract[]> {
-		return this.contractRepository.getAll(databasePagination(pagination), {
-			isPrivate: false,
-		});
-	}
-
-	/**
-	 * Get all contracts allowed to user.
-	 * Return all contracts allowed to user(all public and his private)
-	 * @public
-	 * @async
-	 * @param {NormalizedPagination} pagination request pagination
-	 * @param {string} userId uuid of requested user
-	 * @returns {Promise<Contract[]>}
-	 */
-	async getAllByUser(
-		pagination: NormalizedPagination,
+	async getAll(
+		containerId: string,
+		pagination: PaginationDto,
 		userId: string
 	): Promise<Contract[]> {
-		return this.contractRepository.getAll(databasePagination(pagination), {
-			OR: [
-				{
-					ownerId: userId,
-				},
-				{
-					NOT: {
-						ownerId: userId,
-					},
-					isPrivate: false,
-				}
-			],
-		});
+		return this.contractRepository.getAll(
+			containerId,
+			databasePagination(normalizePagination(pagination)),
+			userId
+		);
 	}
 
-	/**
-	 * Get one contract
-	 * @public
-	 * @async
-	 * @param {SelectContract} params which contract select
-	 * @param {string} userId uuid of requested user
-	 * @returns {Promise<Contract>}
-	 * @throws {NotFoundException} contract doesn't exist
-	 * @throws {ForbiddenException} request private contract and user is not an owner
-	 */
-	async getOne(params: SelectContract, userId: string): Promise<Contract> {
-		const contract = await this.contractRepository.getOne(params);
+	async getLatest(
+		containerId: string,
+		userId: string,
+		contractId?: string | null
+	): Promise<Contract> {
+		const contract = await this.contractRepository.getLatest(
+			containerId,
+			userId,
+			contractId
+		);
 
 		if (!contract) {
 			throw new NotFoundException(
-				`Contract with id ${params.id} was not found`
+				`Container with uuid ${containerId} or contract with uuid ${
+					contractId ?? 'all'
+				} not found`
 			);
 		}
 
-		if (contract.isPrivate && contract.ownerId !== userId) {
-			throw new ForbiddenException("You can't take this contract");
+		return contract;
+	}
+
+	async getOne(
+		containerId: string,
+		contractId: string,
+		userId: string
+	): Promise<Contract> {
+		const contract = await this.contractRepository.getOne(
+			containerId,
+			userId,
+			contractId
+		);
+
+		if (!contract) {
+			throw new NotFoundException(
+				`Container with uuid ${containerId} or contract with uuid ${
+					contractId ?? 'all'
+				} not found`
+			);
 		}
 
 		return contract;
 	}
 
-	/**
-	 * Create new contract
-	 * @public
-	 * @async
-	 * @param {CreateContractDto} dto data for creation
-	 * @param {string} userId uuid of owner
-	 * @returns {Promise<Contract>}
-	 */
-	async create(dto: CreateContractDto, userId: string): Promise<Contract> {
+	async create(
+		containerId: string,
+		dto: CreateContractDto,
+		contract: Express.Multer.File,
+		userId: string
+	): Promise<Contract> {
+		const {
+			contractName,
+			name,
+			walletId,
+			contractArguments,
+			isPrivate = false,
+		} = dto;
+
+		const formData = new FormData();
+
+		formData.append('file', new Blob([contract.buffer]));
+
+		const compiled = await compileRequest<CompiledContracts>('/compile', {
+			body: formData,
+		});
+
+		const clientPath = await this.filesService.writeFile({
+			content: JSON.stringify(compiled),
+			extension: '.json',
+		});
+
+		const deployedAddress = await this.deploy({
+			compiledPath: clientPath,
+			contractName,
+			walletId,
+			contractArguments,
+			userId,
+		});
+
 		return this.contractRepository.create({
-			...dto,
-			ownerId: userId,
+			compiledPath: clientPath,
+			contractName: deployedAddress,
+			isPrivate,
+			containerId,
+			name,
+			walletId,
+			deployedAddress,
 		});
 	}
 
-	/**
-	 * Update existing contract or throw error
-	 * @public
-	 * @async
-	 * @param {SelectContract} params which contract select
-	 * @param {UpdateContractData} dto new data for contract
-	 * @returns {Promise<Contract>}
-	 * @throws {NotFoundException}
-	 */
-	async update(
-		params: SelectContract,
-		dto: UpdateContractData
+	async redeploy(
+		containerId: string,
+		contractId: string,
+		dto: RedeployContractDto,
+		userId: string
 	): Promise<Contract> {
-		const contract = await this.contractRepository.update(params, dto);
+		const contract = await this.getOne(containerId, contractId, userId);
+
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { id: _, compiledPath, ...rest } = contract;
+
+		const overwritten = { ...rest, ...dto, };
+
+		const deployedAddress = await this.deploy({
+			compiledPath,
+			userId,
+			...overwritten,
+		});
+
+		return this.contractRepository.create({
+			...overwritten,
+			compiledPath,
+			deployedAddress,
+			containerId,
+		});
+	}
+
+	async update(
+		containerId: string,
+		contractId: string,
+		dto: UpdateContractDto,
+		userId: string
+	): Promise<Contract> {
+		const contract = await this.contractRepository.update(
+			containerId,
+			contractId,
+			dto,
+			userId
+		);
 
 		if (!contract) {
-			throw new NotFoundException(`Contract ${params.id} not found`);
+			throw new NotFoundException(
+				`Container with uuid ${containerId} or contract with uuid ${contractId} not found`
+			);
 		}
 
 		return contract;
 	}
 
-	/**
-	 * Remove contract
-	 * @public
-	 * @async
-	 * @param {SelectContract} params which contract select
-	 * @param {string} userId
-	 * @returns {Promise<boolean>}
-	 * @throws {NotFoundException}
-	 */
-	async remove(params: SelectContract, userId: string): Promise<boolean> {
-		await this.deploysService.removeAll(params.id, userId);
-
-		const contract = await this.contractRepository.remove(params);
+	async remove(
+		containerId: string,
+		contractId: string,
+		userId: string
+	): Promise<boolean> {
+		const contract = await this.contractRepository.remove(
+			containerId,
+			contractId,
+			userId
+		);
 
 		if (!contract) {
-			throw new NotFoundException(`Contract ${params.id} not found`);
+			throw new NotFoundException(
+				`Container with uuid ${containerId} or contract with uuid ${contractId} not found`
+			);
 		}
 
-		return !!contract;
+		return true;
 	}
+
+	async removeAll(containerId: string, userId: string): Promise<boolean> {
+		const removeCount = await this.contractRepository.removeAll(
+			containerId,
+			userId
+		);
+
+		return !!removeCount;
+	}
+
+	private async deploy(params: DeployParams): Promise<Address> {
+		const { compiledPath, userId, walletId, contractName, contractArguments, } =
+			params;
+
+		const compiled: CompiledContracts = await this.filesService
+			.readFile({
+				clientPath: compiledPath,
+				encoding: 'utf-8',
+			})
+			.then(JSON.parse);
+
+		const compiledContract = compiled[contractName];
+
+		if (!compiledContract) {
+			throw new NotFoundException(
+				`Container ${contractName} not exists in passed file`
+			);
+		}
+
+		const { abi, bytecode, } = compiledContract;
+
+		const web3 = new Web3(env.NODE_HOST);
+
+		const contract = new web3.eth.Contract(abi);
+
+		const wallet = await this.walletsService.getOne({ id: walletId, }, userId);
+
+		const personal = new Personal(env.NODE_HOST);
+		await personal.unlockAccount(wallet.address, wallet.password, 0);
+
+		const deployed = await contract
+			.deploy({
+				data: bytecode,
+				arguments: contractArguments as never,
+			})
+			.send({
+				from: wallet.address,
+			});
+
+		await personal.lockAccount(wallet.address);
+
+		return deployed.options.address;
+	}
+}
+
+interface DeployParams {
+	readonly compiledPath: string;
+	readonly walletId: string;
+	readonly userId: string;
+	readonly contractName: string;
+	readonly contractArguments?: any[];
 }

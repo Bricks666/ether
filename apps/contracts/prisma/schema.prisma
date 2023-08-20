@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Contract {
+model Container {
   id        String    @id @default(uuid()) @db.Uuid()
   ownerId   String    @db.Uuid()
   name      String
@@ -18,12 +18,12 @@ model Contract {
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
 
-  deploy Deploy[]
+  contract Contract[]
 }
 
-model Deploy {
+model Contract {
   id                String   @id @default(uuid()) @db.Uuid()
-  contractId        String   @db.Uuid()
+  containerId       String   @db.Uuid()
   name              String
   walletId          String   @db.Uuid()
   contractName      String
@@ -33,8 +33,8 @@ model Deploy {
   deployedAt        DateTime @default(now())
   isPrivate         Boolean  @default(false)
 
-  contract Contract @relation(fields: [contractId], references: [id])
-  wallet   Wallet   @relation(fields: [walletId], references: [id])
+  container Container @relation(fields: [containerId], references: [id])
+  wallet    Wallet    @relation(fields: [walletId], references: [id])
 }
 
 model Wallet {
@@ -43,7 +43,7 @@ model Wallet {
   address  String
   password String
 
-  deploy Deploy[]
+  contract Contract[]
 }
 
 model Token {

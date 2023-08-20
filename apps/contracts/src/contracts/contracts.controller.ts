@@ -1,123 +1,243 @@
-/* eslint-disable sonarjs/no-duplicate-string */
+/* eslint-disable no-undef */
 import {
 	Controller,
 	Get,
 	Post,
 	Body,
-	Param,
-	Query,
 	Patch,
+	Param,
 	Delete,
-	ParseUUIDPipe
+	Query,
+	ParseUUIDPipe,
+	UploadedFile
 } from '@nestjs/common';
 import {
+	ApiBasicAuth,
+	ApiBearerAuth,
 	ApiBody,
-	ApiForbiddenResponse,
+	ApiConsumes,
 	ApiNotFoundResponse,
 	ApiOkResponse,
 	ApiOperation,
 	ApiParam,
+	ApiQuery,
 	ApiTags
 } from '@nestjs/swagger';
-import { PaginationDto, normalizePagination } from '@/shared/dto';
-import { AuthorizedUser, RequiredAccessToken } from '@/security/lib';
+import {
+	AccessTokenGuard,
+	ApiTokenGuard,
+	AuthorizedUser,
+	RequiredAccessToken
+} from '@/security/lib';
+import { OneOfGuards } from '@/shared/lib';
+import { PaginationDto } from '@/shared/dto';
 import { User } from '@/security/types';
-import { CreateContractDto, UpdateContractDto } from './dto';
-import { Contract } from './entities';
 import { ContractsService } from './contracts.service';
+import { Contract } from './entities';
+import {
+	CreateContractDto,
+	RedeployContractDto,
+	UpdateContractDto
+} from './dto';
 
-const ApiIdParam = () => {
+const ContainerIdParam = () => {
 	return ApiParam({
+		name: 'containerId',
 		type: String,
+		description: 'container uuid',
+	});
+};
+
+const ContractIdParam = () => {
+	return ApiParam({
 		name: 'id',
+		type: String,
 		description: 'contract uuid',
 	});
 };
 
-@ApiTags('contracts')
-@RequiredAccessToken()
-@Controller('contracts')
-export class ContractsController {
-	constructor(private readonly contractsService: ContractsService) {}
+const NotFound = () => {
+	return ApiNotFoundResponse({
+		description: "container or contract doesn't exist",
+	});
+};
 
-	@ApiOperation({ summary: 'Take all public contracts', })
+@ApiTags('contracts')
+@Controller('contracts/:containerId/')
+export class ContractsController {
+	constructor(private readonly deploysService: ContractsService) {}
+
+	@ApiOperation({
+		summary: 'get all allowed contracts',
+	})
+	@ContainerIdParam()
 	@ApiOkResponse({
 		type: Contract,
 		isArray: true,
-		description: 'Contracts',
+		description: 'Allowed contracts',
 	})
+	@NotFound()
+	@RequiredAccessToken()
 	@Get('/')
-	async getAll(@Query() query: PaginationDto): Promise<Contract[]> {
-		return this.contractsService.getAll(normalizePagination(query));
+	getAll(
+		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Query() pagination: PaginationDto,
+		@AuthorizedUser() user: User
+	): Promise<Contract[]> {
+		return this.deploysService.getAll(containerId, pagination, user.id);
 	}
 
 	@ApiOperation({
-		summary: 'Take one contract by uuid',
+		summary: 'get latest allowed contract',
 	})
-	@ApiIdParam()
+	@ApiQuery({
+		name: 'contract',
+		type: String,
+		description: 'specific contract uuid',
+		required: false,
+	})
+	@ContainerIdParam()
 	@ApiOkResponse({
 		type: Contract,
-		description: 'Requested contract',
-	})
-	@ApiForbiddenResponse({
-		description: "You don't have access to this contract",
+		description: 'requested contract',
 	})
 	@ApiNotFoundResponse({
-		description: 'There is not this contract',
+		description: 'Contract or contract not found',
 	})
-	@Get('/:id')
-	async getOne(
-		@Param('id') id: string,
-		@AuthorizedUser() user: User
+	@ApiBearerAuth()
+	@ApiBasicAuth()
+	@OneOfGuards(ApiTokenGuard, AccessTokenGuard)
+	@Get('/latest')
+	getLatest(
+		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@AuthorizedUser() user: User,
+		@Query('contract', ParseUUIDPipe) deployUuid?: string | null
 	): Promise<Contract> {
-		return this.contractsService.getOne({ id, }, user.id);
+		return this.deploysService.getLatest(containerId, user.id, deployUuid);
 	}
 
 	@ApiOperation({
-		summary: 'Create new contract',
+		summary: 'get specific contract',
 	})
+	@ContainerIdParam()
+	@ApiOkResponse({
+		type: Contract,
+		description: 'requested contract',
+	})
+	@ApiNotFoundResponse({
+		description: 'Contract or contract not found',
+	})
+	@RequiredAccessToken()
+	@Get('/:id')
+	getOne(
+		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Param('id', ParseUUIDPipe) id: string,
+		@AuthorizedUser() user: User
+	): Promise<Contract> {
+		return this.deploysService.getOne(containerId, id, user.id);
+	}
+
+	@ApiOperation({
+		summary: 'contract container',
+	})
+	@ApiConsumes('multipart/form-data')
+	@ContainerIdParam()
 	@ApiBody({
 		type: CreateContractDto,
-		description: 'Contract data',
-	})
-	@ApiOkResponse()
-	@Post('/')
-	async create(
-		@Body() dto: CreateContractDto,
-		@AuthorizedUser() user: User
-	): Promise<Contract> {
-		return this.contractsService.create(dto, user.id);
-	}
-
-	@ApiOperation({
-		summary: 'Update contract data',
-	})
-	@ApiIdParam()
-	@ApiBody({
-		type: UpdateContractDto,
 		description: 'New contract data',
 	})
-	@ApiOkResponse()
-	@ApiNotFoundResponse()
-	@Patch('/:id')
-	async update(
-		@Param('id') id: string,
-		@Body() dto: UpdateContractDto
+	@ApiOkResponse({
+		type: Contract,
+		description: 'contract info',
+	})
+	@ApiNotFoundResponse({
+		description: "container doesn't exist",
+	})
+	@RequiredAccessToken()
+	@Post()
+	create(
+		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Body() dto: CreateContractDto,
+		@UploadedFile() container: Express.Multer.File,
+		@AuthorizedUser() user: User
 	): Promise<Contract> {
-		return this.contractsService.update({ id, }, dto);
+		return this.deploysService.create(containerId, dto, container, user.id);
 	}
 
 	@ApiOperation({
-		summary: 'Remove contract data',
+		summary: 'contract container based on already deployed',
 	})
-	@ApiIdParam()
-	@ApiOkResponse()
-	@ApiNotFoundResponse()
+	@ApiBody({
+		type: RedeployContractDto,
+		description: 'overwritten params',
+	})
+	@ContainerIdParam()
+	@ContractIdParam()
+	@RequiredAccessToken()
+	@Post('/:id/redeploy')
+	redeploy(
+		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Param('id', ParseUUIDPipe) id: string,
+		@Body() dto: RedeployContractDto,
+		@AuthorizedUser() user: User
+	): Promise<Contract> {
+		return this.deploysService.redeploy(containerId, id, dto, user.id);
+	}
+
+	@ApiOperation({ summary: 'update info about contract', })
+	@ContainerIdParam()
+	@ContractIdParam()
+	@ApiBody({
+		type: UpdateContractDto,
+		description: 'data for update',
+	})
+	@ApiOkResponse({
+		type: Contract,
+		description: 'updated info',
+	})
+	@NotFound()
+	@RequiredAccessToken()
+	@Patch('/:id')
+	update(
+		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Param('id', ParseUUIDPipe) id: string,
+		@Body() dto: UpdateContractDto,
+		@AuthorizedUser() user: User
+	): Promise<Contract> {
+		return this.deploysService.update(containerId, id, dto, user.id);
+	}
+
+	@ApiOperation({ summary: 'remove contract', })
+	@ContainerIdParam()
+	@ContractIdParam()
+	@ApiOkResponse({
+		type: Boolean,
+		description: 'is successful',
+	})
+	@NotFound()
+	@RequiredAccessToken()
 	@Delete('/:id')
-	async remove(
+	remove(
+		@Param('containerId', ParseUUIDPipe) containerId: string,
 		@Param('id', ParseUUIDPipe) id: string,
 		@AuthorizedUser() user: User
 	): Promise<boolean> {
-		return this.contractsService.remove({ id, }, user.id);
+		return this.deploysService.remove(containerId, id, user.id);
+	}
+
+	@ApiOperation({ summary: 'remove all contracts in container', })
+	@ContainerIdParam()
+	@ApiOkResponse({
+		type: Boolean,
+		description: 'is successful',
+	})
+	@NotFound()
+	@RequiredAccessToken()
+	@Delete('/all')
+	removeAll(
+		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@AuthorizedUser() user: User
+	): Promise<boolean> {
+		return this.deploysService.removeAll(containerId, user.id);
 	}
 }

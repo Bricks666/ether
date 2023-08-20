@@ -1,16 +1,16 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeploysService } from './deploys.service';
+import { ContractsService } from './contracts.service';
 
-describe('DeploysService', () => {
-	let service: DeploysService;
+describe('ContractsService', () => {
+	let service: ContractsService;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [DeploysService],
+			providers: [ContractsService],
 		}).compile();
 
-		service = module.get<DeploysService>(DeploysService);
+		service = module.get<ContractsService>(ContractsService);
 	});
 
 	it('should be defined', () => {

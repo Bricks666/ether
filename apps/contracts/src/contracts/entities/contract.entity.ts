@@ -1,21 +1,30 @@
-/* eslint-disable max-classes-per-file */
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Contract as ContractModel } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
 import {
+	IsUUID,
+	IsString,
+	IsEthereumAddress,
 	IsBoolean,
+	IsUrl,
 	IsDateString,
 	IsOptional,
-	IsString,
-	IsUUID
+	IsArray
 } from 'class-validator';
+import { Contract as ContractDeploy } from '@prisma/client';
 
-export class Contract implements ContractModel {
+export class Contract implements ContractDeploy {
 	@ApiProperty({
 		type: String,
 		description: 'contract uuid',
 	})
 	@IsUUID()
 	declare id: string;
+
+	@ApiProperty({
+		type: String,
+		description: 'container uuid',
+	})
+	@IsUUID()
+	declare containerId: string;
 
 	@ApiProperty({
 		type: String,
@@ -26,32 +35,59 @@ export class Contract implements ContractModel {
 
 	@ApiProperty({
 		type: String,
-		description: 'contract owner uuid',
+		description: 'deployed wallet uuid',
 	})
 	@IsUUID()
-	declare ownerId: string;
+	declare walletId: string;
+
+	@ApiProperty({
+		type: String,
+		isArray: true,
+		description: 'deployed params',
+	})
+	@IsOptional()
+	@IsArray()
+	declare contractArguments: string[];
+
+	@ApiProperty({
+		type: String,
+		description: 'deployed contract name',
+	})
+	@IsString()
+	declare contractName: string;
 
 	@ApiProperty({
 		type: Boolean,
-		default: false,
 		description:
-			"Flag contract is private or not. If it's true the contract wouldn't allowed for others users",
+			'is private contract or not. Private contract allowed only for contract owner',
 	})
-	@IsBoolean()
 	@IsOptional()
+	@IsBoolean()
 	declare isPrivate: boolean;
 
 	@ApiProperty({
-		type: Date,
-		description: 'When contract was uploaded',
+		type: String,
+		description:
+			'path to compiled data(abi and bytecode). Need for redeploy of this contract',
 	})
-	@IsDateString()
-	declare createdAt: Date;
+	@IsUrl({
+		require_host: false,
+		require_port: false,
+		require_protocol: false,
+	})
+	declare compiledPath: string;
 
-	@ApiPropertyOptional({
-		type: Date,
-		description: 'When contract was updated or reuploaded last time',
+	@ApiProperty({
+		type: String,
+		description: 'ethereum address of deployed contract',
+	})
+	@IsEthereumAddress()
+	declare deployedAddress: string;
+
+	@ApiProperty({
+		type: String,
+		description: 'date of deployment',
 	})
 	@IsDateString()
-	declare updatedAt: Date | null;
+	declare deployedAt: Date;
 }

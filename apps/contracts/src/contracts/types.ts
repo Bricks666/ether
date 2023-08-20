@@ -1,9 +1,5 @@
 import type { ContractAbi } from 'web3-types';
 
-export interface SelectContract {
-	readonly id: string;
-}
-
 export interface CompiledContractData {
 	readonly abi: ContractAbi;
 	readonly bytecode: string;

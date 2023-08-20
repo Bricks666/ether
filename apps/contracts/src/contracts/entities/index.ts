@@ -1,1 +1,1 @@
-export { Contract } from './contract.entity';
+export * from './contract.entity';
