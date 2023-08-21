@@ -96,7 +96,7 @@ export interface CreateContractsIntegrationParams<
 	ABI extends ContractAbi,
 	NormalizeResponse extends boolean
 > extends CreateFetchParams<ABI>,
-		CreateRequestCreatorParams<ABI, NormalizeResponse> {}
+		Omit<CreateRequestCreatorParams<ABI, NormalizeResponse>, 'getContract'> {}
 
 export interface CreateContractsIntegrationResult<
 	ABI extends ContractAbi,
