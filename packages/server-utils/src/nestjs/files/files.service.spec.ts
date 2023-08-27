@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable no-undef */
-import { extname, join, resolve } from 'node:path';
-import { unlink, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { readFile, unlink, writeFile } from 'node:fs/promises';
 import { v4 } from 'uuid';
 import { InternalServerErrorException } from '@nestjs/common';
 import { FilesService } from './files.service';
@@ -14,7 +14,6 @@ jest.mock('uuid', () => {
 
 jest.mock('node:path', () => {
 	return {
-		extname: jest.fn(),
 		join: jest.fn(),
 		resolve: jest.fn(),
 	};
@@ -23,6 +22,7 @@ jest.mock('node:path', () => {
 jest.mock('node:fs/promises', () => {
 	return {
 		writeFile: jest.fn(),
+		readFile: jest.fn(),
 		unlink: jest.fn(),
 	};
 });
@@ -41,13 +41,8 @@ const mockFileName = mockUuid + mockExtname;
 
 const error = new Error('Mock');
 
-const mockFile = {
-	originalName: 'original name',
-	buffer: Buffer.alloc(0),
-} as unknown as Express.Multer.File;
-
+const content = Buffer.alloc(0);
 (v4 as jest.Mock).mockReturnValue(mockUuid);
-(extname as jest.Mock).mockReturnValue(mockExtname);
 (join as jest.Mock).mockReturnValue(mockJoinResult);
 (resolve as jest.Mock).mockReturnValue(mockResoledPath);
 
@@ -87,17 +82,28 @@ describe('FilesService', () => {
 			mockGetServePath.mockRestore();
 		});
 
-		test('should generate filename from uuid and extension', async () => {
-			await filesService.writeFile(mockFile);
+		test('should generate filename from uuid and extension if name wasnt passed', async () => {
+			await filesService.writeFile({
+				content,
+				extension: mockExtname,
+			});
 
 			expect(v4).toHaveBeenCalledTimes(1);
 			expect(v4).toHaveBeenCalledWith();
-			expect(extname).toHaveBeenCalledTimes(1);
-			expect(extname).toHaveBeenCalledWith(mockFile.originalname);
+		});
+
+		test('should not generate filename from uuid and extension if name passed', async () => {
+			await filesService.writeFile({
+				content,
+				extension: mockExtname,
+				name: 'name',
+			});
+
+			expect(v4).toHaveBeenCalledTimes(0);
 		});
 
 		test('should generate filesystem and serve path by name', async () => {
-			await filesService.writeFile(mockFile);
+			await filesService.writeFile({ content, extension: mockExtname, });
 
 			expect(mockGetFileSystemPath).toHaveBeenCalledTimes(1);
 			expect(mockGetFileSystemPath).toHaveBeenCalledWith(mockFileName);
@@ -105,18 +111,29 @@ describe('FilesService', () => {
 			expect(mockGetServePath).toHaveBeenCalledWith(mockFileName);
 		});
 
+		test('should resolve path with subDir', async () => {
+			await filesService.writeFile({
+				content,
+				extension: mockExtname,
+				subDir: 'sub',
+			});
+
+			expect(resolve).toHaveBeenCalledTimes(1);
+			expect(resolve).toHaveBeenCalledWith(mockFileSystemPath, 'sub');
+		});
+
 		test('should write file with filesystem path', async () => {
-			await filesService.writeFile(mockFile);
+			await filesService.writeFile({ content, extension: mockExtname, });
 
 			expect(writeFile).toHaveBeenCalledTimes(1);
-			expect(writeFile).toHaveBeenCalledWith(
-				mockFileSystemPath,
-				mockFile.buffer
-			);
+			expect(writeFile).toHaveBeenCalledWith(mockResoledPath, content);
 		});
 
 		test('should return servePath', async () => {
-			const result = await filesService.writeFile(mockFile);
+			const result = await filesService.writeFile({
+				content,
+				extension: mockExtname,
+			});
 
 			expect(result).toBe(mockServerPath);
 		});
@@ -125,9 +142,56 @@ describe('FilesService', () => {
 			mockGetFileSystemPath.mockImplementationOnce(() => {
 				throw error;
 			});
-			expect(() => filesService.writeFile(mockFile)).rejects.toThrowError(
+			expect(() =>
+				filesService.writeFile({ content, extension: mockExtname, })
+			).rejects.toThrowError(
 				new InternalServerErrorException('Write file error', { cause: error, })
 			);
+		});
+	});
+
+	describe('readFile', () => {
+		let toFileSystemPathSpy: jest.MockInstance<any, any>;
+
+		beforeAll(() => {
+			toFileSystemPathSpy = jest
+				.spyOn(filesService, 'toFileSystemPath')
+				.mockReturnValue(mockFileSystemPath);
+		});
+
+		afterAll(() => {
+			toFileSystemPathSpy.mockRestore();
+		});
+
+		test('should convert client path to file system one', async () => {
+			await filesService.readFile({
+				clientPath: mockClientPath,
+				encoding: 'ascii',
+			});
+
+			expect(toFileSystemPathSpy).toHaveBeenCalledTimes(1);
+			expect(toFileSystemPathSpy).toHaveBeenCalledWith(mockClientPath);
+		});
+
+		test('should call readFile with fileSystemPath and encoding', async () => {
+			await filesService.readFile({
+				clientPath: mockClientPath,
+				encoding: 'ascii',
+			});
+
+			expect(readFile).toHaveBeenCalledTimes(1);
+			expect(readFile).toHaveBeenCalledWith(mockFileSystemPath, 'ascii');
+		});
+
+		test('should re-throw wrapped error', async () => {
+			(readFile as jest.Mock).mockRejectedValueOnce(error);
+
+			expect(() =>
+				filesService.readFile({
+					clientPath: mockClientPath,
+					encoding: 'ascii',
+				})
+			).rejects.toThrow();
 		});
 	});
 
