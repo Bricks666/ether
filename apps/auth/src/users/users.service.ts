@@ -1,3 +1,4 @@
+import { extname } from 'path';
 import {
 	ConflictException,
 	Injectable,
@@ -40,7 +41,10 @@ export class UsersService {
 		const { avatar, ...dto } = data;
 
 		if (avatar) {
-			const avatarPath = await this.filesService.writeFile(data.avatar);
+			const avatarPath = await this.filesService.writeFile({
+				content: data.avatar.buffer,
+				extension: extname(data.avatar.originalname),
+			});
 			(dto as CreateUser).avatar = avatarPath;
 		}
 
@@ -67,7 +71,10 @@ export class UsersService {
 		}
 
 		if (avatar) {
-			const avatarPath = await this.filesService.writeFile(avatar);
+			const avatarPath = await this.filesService.writeFile({
+				content: avatar.buffer,
+				extension: extname(avatar.originalname),
+			});
 			(dto as UpdateUser).avatar = avatarPath;
 		}
 

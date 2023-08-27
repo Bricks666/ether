@@ -2,6 +2,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable no-undef */
 /* eslint-disable import/no-extraneous-dependencies */
+import { extname } from 'node:path';
 import { Test } from '@nestjs/testing';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { FilesService } from '@bricks-ether/server-utils/nestjs';
@@ -32,7 +33,10 @@ const mockSelect: SelectUser = { id: 'id', };
 
 const error = new Error('Mock error');
 
-const mockAvatar = {} as Express.Multer.File;
+const mockAvatar = {
+	buffer: Buffer.alloc(0),
+	originalname: 'a.png',
+} as Express.Multer.File;
 
 const mockWritePath = 'mock write path';
 const mockFileSystemPath = 'file system path';
@@ -190,7 +194,10 @@ describe('UsersService', () => {
 			await usersService.create({ ...data, avatar: mockAvatar, });
 
 			expect(filesService.writeFile).toHaveBeenCalledTimes(1);
-			expect(filesService.writeFile).toHaveBeenCalledWith(mockAvatar);
+			expect(filesService.writeFile).toHaveBeenCalledWith({
+				content: mockAvatar.buffer,
+				extension: extname(mockAvatar.originalname),
+			});
 			expect(userRepository.create).toHaveBeenCalledWith({
 				...data,
 				avatar: mockWritePath,
@@ -281,7 +288,10 @@ describe('UsersService', () => {
 			await usersService.update(mockSelect, { ...data, avatar: mockAvatar, });
 
 			expect(filesService.writeFile).toHaveBeenCalledTimes(1);
-			expect(filesService.writeFile).toHaveBeenCalledWith(mockAvatar);
+			expect(filesService.writeFile).toHaveBeenCalledWith({
+				content: mockAvatar.buffer,
+				extension: extname(mockAvatar.originalname),
+			});
 			expect(userRepository.update).toHaveBeenCalledWith(mockSelect, {
 				...data,
 				avatar: mockWritePath,
