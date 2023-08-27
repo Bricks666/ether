@@ -1,13 +1,16 @@
 {
 	"name": "@bricks-ether/server-utils",
-	"version": "2.0.4",
+	"version": "2.0.5",
 	"description": "It's my complect of utils and useful things for simple express server",
 	"private": false,
 	"publishConfig": {
 		"access": "public"
 	},
 	"files": [
-		"dist"
+		"dist",
+    "nestjs.cjs",
+    "nestjs.d.ts",
+    "nestjs.mjs"
 	],
 	"main": "./dist/express.cjs",
 	"module": "./dist/express.mjs",
