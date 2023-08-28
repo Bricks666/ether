@@ -10,51 +10,75 @@ services:
     container_name:  proxy
     depends_on:
       - network
-      - contracts
-      - compiler
+      - ms.contracts
+      - ms.compiler
+      - ms.auth
   network:
+    build: ./apps/network
     env_file:
       - .env
-    build: ./apps/network
-    ports:
-      - 8545:8545
-      - 8546:8546
-      - 30303:30303
     volumes:
       - geth-data:/root/.ethereum
     container_name: network
     restart: always
     networks:
       geth-private-net:
-  contracts:
+  ms.auth:
+    build: ./apps/auth
+    env_file:
+      - .env
+    environment:
+      - PORT=5000
+      - DATABASE_URL=postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@database/${AUTH_DATABASE_NAME}
+    restart: always
+    container_name: ms.auth
+    networks:
+      geth-private-net:
+    depends_on:
+      - database
+  ms.contracts:
     build: ./apps/contracts
     env_file:
       - .env
     environment:
       - PORT=5000
+      - DATABASE_URL=postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@database/${CONTRACTS_DATABASE_NAME}
     volumes:
       - constracts-db:/app/database
-    container_name: contracts
+    container_name: ms.contracts
     restart: always
     depends_on:
       - network
-      - compiler
+      - ms.compiler
     networks:
       geth-private-net:
-  compiler:
+  ms.compiler:
     build: ./apps/compiler
-    ports:
-      - 5000:5000
     env_file:
       - .env
     environment:
       - PORT=5000
     volumes:
       - compiler-static:/app/static
-    container_name: compiler
+    container_name: ms.compiler
     restart: always
     networks:
       geth-private-net:
+  database:
+    image: postgres:alpine
+    ports:
+      - ${DATABASE_OUTER_PORT:-0}:5432
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - main-database-data:/var/lib/postgresql/data
+    networks:
+      geth-private-net:
+    container_name: database
+    restart: always
 
 networks:
   geth-private-net:
@@ -66,3 +90,4 @@ volumes:
   geth-data:
   compiler-static:
   constracts-db:
+  main-database-data:

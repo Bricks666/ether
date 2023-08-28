@@ -1,79 +1,82 @@
-import Web3, {
-	type SupportedProviders,
-	type Contract,
-	type ContractAbi
-} from 'web3';
-import {
-	type NormalizedType,
-	normalizeWeb3Response
-} from './normalize-web3-response';
+import Web3, { type Contract, type ContractAbi } from 'web3';
+import { normalizeWeb3Response } from './normalize-web3-response';
 import { request } from './request';
-import type { Callback, ContractInfo, ParamsWithContracts } from './types';
+import { API_TOKEN_NAME } from './config';
+import type { ContractInfo, CreateRequest } from './types';
 
-export interface CreateContractsIntegrationParams<
-	ABI extends ContractAbi,
-	NormalizeResponse extends boolean
-> {
-	readonly providerHost: SupportedProviders;
-	readonly contractsServiceHost: string;
-	readonly contractName: string;
+interface CreateFetchParams<ABI extends ContractAbi> {
 	readonly abi: ABI;
-	readonly normalizeResponse?: NormalizeResponse;
+	readonly network: string;
+	readonly host: string;
+	readonly containerId: string;
+	readonly apiToken: string;
+	readonly deployId?: string;
 }
 
-export interface CreateContractsIntegrationResult<
-	ABI extends ContractAbi,
-	NormalizeResponse extends boolean
-> {
-	readonly contract: Contract<ABI> | null;
-	readonly fetch: () => Promise<Contract<ABI>>;
-	readonly createRequest: CreateRequest<ABI, NormalizeResponse>;
+interface CreateFetchResult<ABI extends ContractAbi> {
+	getContract(): Contract<ABI> | null;
+	fetch(): Promise<Contract<ABI>>;
 }
 
-interface CreateRequest<
-	ABI extends ContractAbi,
-	NormalizeResponse extends boolean
-> {
-	<Response>(
-		cb: Callback<ParamsWithContracts<ABI, Record<string, never>>, Response>
-	): Callback<void, ContractResponse<Response, NormalizeResponse>>;
-	<Params extends Record<string, any>, Response>(
-		cb: Callback<ParamsWithContracts<ABI, Params>, Response>
-	): Callback<Params, ContractResponse<Response, NormalizeResponse>>;
-}
+const createFetch = <ABI extends ContractAbi>(
+	params: CreateFetchParams<ABI>
+): CreateFetchResult<ABI> => {
+	const { abi, apiToken, containerId, host, network, deployId, } = params;
 
-type ContractResponse<
-	Response,
-	NormalizeResponse extends boolean
-> = NormalizeResponse extends true ? NormalizedType<Response> : Response;
-
-export const createContractsIntegration = <
-	ABI extends ContractAbi,
-	NormalizeResponse extends boolean
->(
-		params: CreateContractsIntegrationParams<ABI, NormalizeResponse>
-	): CreateContractsIntegrationResult<ABI, NormalizeResponse> => {
-	const {
-		abi,
-		contractName,
-		providerHost,
-		normalizeResponse,
-		contractsServiceHost,
-	} = params;
-
-	const web3 = new Web3(providerHost);
+	const web3 = new Web3(network);
 	let contract: Contract<ABI> | null = null;
+
+	const query = new URLSearchParams();
+
+	if (deployId) {
+		query.set('deployId', deployId);
+	}
+
+	const headers = new Headers({
+		[API_TOKEN_NAME]: apiToken,
+	});
 
 	const fetch = async (): Promise<Contract<ABI>> => {
 		const response = await request<ContractInfo>(
-			`${contractsServiceHost}/${contractName}`
+			`${host}/${containerId}/latest?${query.toString()}`,
+			{
+				headers,
+			}
 		);
-		contract = new web3.eth.Contract(abi, response.address);
+
+		contract = new web3.eth.Contract(abi, response.deployedAddress);
+
 		return contract;
 	};
 
-	const createRequest = (cb: any) => {
+	return {
+		getContract() {
+			return contract;
+		},
+		fetch,
+	};
+};
+
+interface CreateRequestCreatorParams<
+	ABI extends ContractAbi,
+	NormalizeResponse extends boolean
+> {
+	getContract(): Contract<ABI> | null;
+	readonly normalizeResponse?: NormalizeResponse;
+}
+
+const createRequestCreator = <
+	ABI extends ContractAbi,
+	NormalizeResponse extends boolean
+>(
+		params: CreateRequestCreatorParams<ABI, NormalizeResponse>
+	): CreateRequest<ABI, NormalizeResponse> => {
+	const { getContract, normalizeResponse, } = params;
+
+	return (cb: any) => {
 		return async (params: any = {}) => {
+			const contract = getContract();
+
 			if (!contract) {
 				throw new Error("Contract wasn't initialized");
 			}
@@ -87,11 +90,38 @@ export const createContractsIntegration = <
 			return normalizeWeb3Response(response);
 		};
 	};
+};
+
+export interface CreateContractsIntegrationParams<
+	ABI extends ContractAbi,
+	NormalizeResponse extends boolean
+> extends CreateFetchParams<ABI>,
+		Omit<CreateRequestCreatorParams<ABI, NormalizeResponse>, 'getContract'> {}
+
+export interface CreateContractsIntegrationResult<
+	ABI extends ContractAbi,
+	NormalizeResponse extends boolean
+> extends CreateFetchResult<ABI> {
+	readonly createRequest: CreateRequest<ABI, NormalizeResponse>;
+}
+
+export const createContractsIntegration = <
+	ABI extends ContractAbi,
+	NormalizeResponse extends boolean
+>(
+		params: CreateContractsIntegrationParams<ABI, NormalizeResponse>
+	): CreateContractsIntegrationResult<ABI, NormalizeResponse> => {
+	const { normalizeResponse, ...fetchParams } = params;
+
+	const { fetch, getContract, } = createFetch(fetchParams);
+
+	const createRequest = createRequestCreator({
+		getContract,
+		normalizeResponse,
+	});
 
 	return {
-		get contract() {
-			return contract;
-		},
+		getContract,
 		createRequest,
 		fetch,
 	};
