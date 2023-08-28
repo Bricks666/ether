@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { API_TOKEN_HEADER } from '@/shared/config';
-import { extractToken } from '@/shared/lib';
 import { SecurityService } from '../security.service';
 
 @Injectable()
@@ -16,15 +15,7 @@ export class ApiTokenGuard implements CanActivate {
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request: Request = context.switchToHttp().getRequest();
 
-		const apiTokenHeader = request.headers[API_TOKEN_HEADER] as
-			| string
-			| undefined;
-
-		const token = extractToken(apiTokenHeader);
-
-		if (!token) {
-			throw new BadRequestException('There is not api token');
-		}
+		const token = request.headers[API_TOKEN_HEADER] as string | undefined;
 
 		const isValid = this.securityService.validateApiToken(token);
 

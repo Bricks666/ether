@@ -51,6 +51,24 @@ export class ContainersController {
 		return this.containersService.getAll(normalizePagination(query));
 	}
 
+	@ApiOperation({ summary: 'Take all owned by user containers', })
+	@ApiOkResponse({
+		type: Container,
+		isArray: true,
+		description: 'Contracts',
+	})
+	@RequiredAccessToken()
+	@Get('/')
+	async getAllByUser(
+		@Query() query: PaginationDto,
+		@AuthorizedUser() user: User
+	): Promise<Container[]> {
+		return this.containersService.getAllByUser(
+			normalizePagination(query),
+			user.id
+		);
+	}
+
 	@ApiOperation({
 		summary: 'Take one container by uuid',
 	})
@@ -115,7 +133,7 @@ export class ContainersController {
 	@ApiNotFoundResponse()
 	@Delete('/:id')
 	async remove(
-		@Param('id', ParseUUIDPipe) id: string,
+		@Param('id', new ParseUUIDPipe()) id: string,
 		@AuthorizedUser() user: User
 	): Promise<boolean> {
 		return this.containersService.remove({ id, }, user.id);

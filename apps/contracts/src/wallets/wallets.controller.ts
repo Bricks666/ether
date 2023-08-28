@@ -68,7 +68,7 @@ export class WalletsController {
 	})
 	@Get('/:id')
 	getOne(
-		@Param('id', ParseUUIDPipe) id: string,
+		@Param('id', new ParseUUIDPipe()) id: string,
 		@AuthorizedUser() user: User
 	): Promise<Wallet> {
 		return this.walletsService.getOne({ id, }, user.id);
@@ -109,7 +109,7 @@ export class WalletsController {
 	})
 	@Delete('/:id')
 	remove(
-		@Param('id', ParseUUIDPipe) id: string,
+		@Param('id', new ParseUUIDPipe()) id: string,
 		@AuthorizedUser() user: User
 	): Promise<boolean> {
 		return this.walletsService.remove({ id, }, user.id);

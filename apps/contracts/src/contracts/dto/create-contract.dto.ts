@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsArray, IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 import { Contract } from '../entities';
 
 export class CreateContractDto extends PickType(Contract, [
@@ -13,7 +13,6 @@ export class CreateContractDto extends PickType(Contract, [
 		format: 'binary',
 		description: 'sol contract',
 	})
-	@IsDefined()
 	declare contract: Express.Multer.File;
 
 	@ApiProperty({

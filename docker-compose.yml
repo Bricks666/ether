@@ -17,10 +17,6 @@ services:
     build: ./apps/network
     env_file:
       - .env
-    ports:
-      - 8545:8545
-      - 8546:8546
-      - 30303:30303
     volumes:
       - geth-data:/root/.ethereum
     container_name: network
@@ -58,8 +54,6 @@ services:
       geth-private-net:
   ms.compiler:
     build: ./apps/compiler
-    ports:
-      - 5000:5000
     env_file:
       - .env
     environment:

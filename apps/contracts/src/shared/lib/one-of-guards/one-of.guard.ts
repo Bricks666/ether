@@ -29,8 +29,7 @@ export class OneOfGuard implements CanActivate {
 				guard.pipe(
 					map((guard) =>
 						this.normalizeCanActivateResult(guard.canActivate(context)).pipe(
-							catchError((error) => {
-								console.log(error);
+							catchError(() => {
 								return of(false);
 							})
 						)

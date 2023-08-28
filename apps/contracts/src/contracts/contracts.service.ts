@@ -12,7 +12,7 @@ import { env } from '@/shared/config';
 import { WalletsService } from '@/wallets/wallets.service';
 import { ContractRepository } from './repositories';
 import { Contract } from './entities';
-import { CompiledContracts } from './types';
+import { CompileResponseBody, CompiledContracts } from './types';
 import {
 	CreateContractDto,
 	RedeployContractDto,
@@ -103,6 +103,7 @@ export class ContractsService {
 
 		const compiled = await compileRequest<CompiledContracts>('/compile', {
 			body: formData,
+			method: 'POST',
 		});
 
 		const clientPath = await this.filesService.writeFile({
@@ -211,18 +212,18 @@ export class ContractsService {
 		const { compiledPath, userId, walletId, contractName, contractArguments, } =
 			params;
 
-		const compiled: CompiledContracts = await this.filesService
+		const compiled: CompileResponseBody = await this.filesService
 			.readFile({
 				clientPath: compiledPath,
 				encoding: 'utf-8',
 			})
 			.then(JSON.parse);
 
-		const compiledContract = compiled[contractName];
+		const compiledContract = compiled.contracts[contractName];
 
 		if (!compiledContract) {
 			throw new NotFoundException(
-				`Container ${contractName} not exists in passed file`
+				`Contract ${contractName} not exists in passed file`
 			);
 		}
 

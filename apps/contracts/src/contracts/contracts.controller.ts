@@ -9,7 +9,8 @@ import {
 	Delete,
 	Query,
 	ParseUUIDPipe,
-	UploadedFile
+	UploadedFile,
+	UseInterceptors
 } from '@nestjs/common';
 import {
 	ApiBasicAuth,
@@ -23,6 +24,7 @@ import {
 	ApiQuery,
 	ApiTags
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
 	AccessTokenGuard,
 	ApiTokenGuard,
@@ -80,7 +82,7 @@ export class ContractsController {
 	@RequiredAccessToken()
 	@Get('/')
 	getAll(
-		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Param('containerId', new ParseUUIDPipe()) containerId: string,
 		@Query() pagination: PaginationDto,
 		@AuthorizedUser() user: User
 	): Promise<Contract[]> {
@@ -109,9 +111,10 @@ export class ContractsController {
 	@OneOfGuards(ApiTokenGuard, AccessTokenGuard)
 	@Get('/latest')
 	getLatest(
-		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Param('containerId', new ParseUUIDPipe()) containerId: string,
 		@AuthorizedUser() user: User,
-		@Query('contract', ParseUUIDPipe) deployUuid?: string | null
+		@Query('contract', new ParseUUIDPipe({ optional: true, }))
+			deployUuid?: string | null
 	): Promise<Contract> {
 		return this.deploysService.getLatest(containerId, user.id, deployUuid);
 	}
@@ -130,8 +133,8 @@ export class ContractsController {
 	@RequiredAccessToken()
 	@Get('/:id')
 	getOne(
-		@Param('containerId', ParseUUIDPipe) containerId: string,
-		@Param('id', ParseUUIDPipe) id: string,
+		@Param('containerId', new ParseUUIDPipe()) containerId: string,
+		@Param('id', new ParseUUIDPipe()) id: string,
 		@AuthorizedUser() user: User
 	): Promise<Contract> {
 		return this.deploysService.getOne(containerId, id, user.id);
@@ -153,10 +156,11 @@ export class ContractsController {
 	@ApiNotFoundResponse({
 		description: "container doesn't exist",
 	})
+	@UseInterceptors(FileInterceptor('contract'))
 	@RequiredAccessToken()
 	@Post()
 	create(
-		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Param('containerId', new ParseUUIDPipe()) containerId: string,
 		@Body() dto: CreateContractDto,
 		@UploadedFile() container: Express.Multer.File,
 		@AuthorizedUser() user: User
@@ -176,8 +180,8 @@ export class ContractsController {
 	@RequiredAccessToken()
 	@Post('/:id/redeploy')
 	redeploy(
-		@Param('containerId', ParseUUIDPipe) containerId: string,
-		@Param('id', ParseUUIDPipe) id: string,
+		@Param('containerId', new ParseUUIDPipe()) containerId: string,
+		@Param('id', new ParseUUIDPipe()) id: string,
 		@Body() dto: RedeployContractDto,
 		@AuthorizedUser() user: User
 	): Promise<Contract> {
@@ -199,8 +203,8 @@ export class ContractsController {
 	@RequiredAccessToken()
 	@Patch('/:id')
 	update(
-		@Param('containerId', ParseUUIDPipe) containerId: string,
-		@Param('id', ParseUUIDPipe) id: string,
+		@Param('containerId', new ParseUUIDPipe()) containerId: string,
+		@Param('id', new ParseUUIDPipe()) id: string,
 		@Body() dto: UpdateContractDto,
 		@AuthorizedUser() user: User
 	): Promise<Contract> {
@@ -218,8 +222,8 @@ export class ContractsController {
 	@RequiredAccessToken()
 	@Delete('/:id')
 	remove(
-		@Param('containerId', ParseUUIDPipe) containerId: string,
-		@Param('id', ParseUUIDPipe) id: string,
+		@Param('containerId', new ParseUUIDPipe()) containerId: string,
+		@Param('id', new ParseUUIDPipe()) id: string,
 		@AuthorizedUser() user: User
 	): Promise<boolean> {
 		return this.deploysService.remove(containerId, id, user.id);
@@ -235,7 +239,7 @@ export class ContractsController {
 	@RequiredAccessToken()
 	@Delete('/')
 	removeAll(
-		@Param('containerId', ParseUUIDPipe) containerId: string,
+		@Param('containerId', new ParseUUIDPipe()) containerId: string,
 		@AuthorizedUser() user: User
 	): Promise<boolean> {
 		return this.deploysService.removeAll(containerId, user.id);

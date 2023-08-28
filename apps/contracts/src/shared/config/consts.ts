@@ -1,1 +1,1 @@
-export const API_TOKEN_HEADER = 'X-API-TOKEN';
+export const API_TOKEN_HEADER = 'x-api-token';

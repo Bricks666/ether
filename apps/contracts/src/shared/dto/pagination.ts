@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNumber, IsOptional } from 'class-validator';
+import { ToNumber } from '../lib';
 
 export class PaginationDto {
 	@ApiPropertyOptional({
@@ -7,6 +8,7 @@ export class PaginationDto {
 		default: 1,
 		description: 'page number',
 	})
+	@ToNumber()
 	@IsNumber()
 	@IsOptional()
 	readonly page?: number;
@@ -16,6 +18,7 @@ export class PaginationDto {
 		default: 100,
 		description: 'count items on page',
 	})
+	@ToNumber()
 	@IsNumber()
 	@IsOptional()
 	readonly count?: number;

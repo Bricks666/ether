@@ -6,11 +6,18 @@ interface StatusResponse {
 }
 
 const checkToken = async (request: NginxHTTPRequest) => {
-	const disableRequiredAccessToken =
-		request.variables.disable_required_access_token ?? false;
+	const requiredAccessToken = request.variables.required_access_token ?? 'on';
+
+	const disableRequiredAccessToken = requiredAccessToken === 'off';
+
 	const response = await request.subrequest('/_send_authorization');
 
 	if (response.status >= 300) {
+		if (disableRequiredAccessToken) {
+			request.headersOut.Authorization = '';
+			request.return(204);
+			return;
+		}
 		ngx.log(ngx.ERR, response.responseText);
 		request.return(401, JSON.stringify(response));
 		return;
@@ -22,6 +29,7 @@ const checkToken = async (request: NginxHTTPRequest) => {
 		if (disableRequiredAccessToken) {
 			request.headersOut.Authorization = '';
 			request.return(204);
+			return;
 		}
 		ngx.log(ngx.ERR, response.responseText);
 		request.return(500, JSON.stringify(body));
@@ -32,9 +40,10 @@ const checkToken = async (request: NginxHTTPRequest) => {
 		if (disableRequiredAccessToken) {
 			request.headersOut.Authorization = '';
 			request.return(204);
+			return;
 		}
 		ngx.log(ngx.ERR, JSON.stringify(body));
-		request.return(403);
+		request.return(404);
 		return;
 	}
 

@@ -22,7 +22,7 @@ export class AccessTokenGuard implements CanActivate {
 		const token = extractToken(authorizationHeader);
 
 		if (!token) {
-			throw new BadRequestException('There is not api token');
+			throw new BadRequestException('There is not access token');
 		}
 
 		const user = this.securityService.extractUser(token);

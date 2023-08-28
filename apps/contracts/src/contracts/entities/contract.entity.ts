@@ -10,6 +10,7 @@ import {
 	IsArray
 } from 'class-validator';
 import { Contract as ContractDeploy } from '@prisma/client';
+import { ToBoolean } from '@/shared/lib/to-boolean';
 
 export class Contract implements ContractDeploy {
 	@ApiProperty({
@@ -61,6 +62,7 @@ export class Contract implements ContractDeploy {
 		description:
 			'is private contract or not. Private contract allowed only for contract owner',
 	})
+	@ToBoolean()
 	@IsOptional()
 	@IsBoolean()
 	declare isPrivate: boolean;

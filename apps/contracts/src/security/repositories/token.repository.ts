@@ -59,12 +59,14 @@ export class TokenRepository {
 	 * @param {string} userId
 	 * @returns {Promise<Token | null>}
 	 */
-	remove(userId: string): Promise<Token | null> {
-		return this.databaseService.token.delete({
-			where: {
-				ownerId: userId,
-			},
-		});
+	remove({ userId, }: { userId: string }): Promise<Token | null> {
+		return this.databaseService.token
+			.delete({
+				where: {
+					ownerId: userId,
+				},
+			})
+			.catch(() => null);
 	}
 }
 

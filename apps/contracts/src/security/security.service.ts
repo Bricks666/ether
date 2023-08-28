@@ -31,7 +31,7 @@ export class SecurityService {
 	 * @returns {Promise<Token>}
 	 */
 	async generateToken(user: User): Promise<Token> {
-		await this.tokenRepository.remove(user.id);
+		await this.tokenRepository.remove({ userId: user.id, });
 
 		const token = await this.generate(user);
 
