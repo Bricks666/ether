@@ -1,0 +1,43 @@
+{
+	"name": "@bricks-ether/contracts-client",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite --host",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"gen:css-types": "tcm src"
+	},
+	"dependencies": {
+		"@farfetched/core": "^0.8.14",
+		"@farfetched/solid": "^0.8.14",
+		"@suid/icons-material": "^0.6.9",
+		"@suid/material": "^0.14.2",
+		"atomic-router": "^0.7.1",
+		"atomic-router-solid": "^0.8.0",
+		"classnames": "^2.3.2",
+		"compose-function": "^3.0.3",
+		"effector": "^22.8.6",
+		"effector-forms": "^1.3.4",
+		"effector-solid": "^0.22.7",
+		"history": "^5.3.0",
+		"solid-js": "^1.7.11",
+		"web3": "^4.1.1",
+		"web3-utils": "^4.0.5",
+		"web3-validator": "^2.0.1"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.22.10",
+		"@babel/core": "^7.22.11",
+		"@babel/preset-env": "^7.22.10",
+		"@babel/preset-typescript": "^7.22.11",
+		"@suid/vite-plugin": "^0.1.4",
+		"@types/compose-function": "^0.0.30",
+		"eslint-plugin-effector": "^0.11.0",
+		"eslint-plugin-solid": "^0.13.0",
+		"typed-css-modules": "^0.7.2",
+		"vite": "^4.4.5",
+		"vite-plugin-solid": "^2.7.0"
+	}
+}

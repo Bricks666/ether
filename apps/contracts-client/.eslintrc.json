@@ -1,0 +1,83 @@
+{
+	"env": {
+		"browser": true,
+		"jest": true,
+		"es6": true
+	},
+	"extends": [
+		"../../.eslintrc.json",
+		"plugin:effector/recommended",
+		"plugin:effector/scope",
+		"plugin:solid/typescript",
+		"prettier"
+	],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		}
+	},
+	"rules": {
+		"import/order": [
+			2,
+			{
+				"pathGroups": [
+					{
+						"pattern": "pages/**",
+						"group": "internal",
+						"position": "after"
+					},
+					{
+						"pattern": "widgets/**",
+						"group": "internal",
+						"position": "after"
+					},
+					{
+						"pattern": "features/**",
+						"group": "internal",
+						"position": "after"
+					},
+					{
+						"pattern": "entities/**",
+						"group": "internal",
+						"position": "after"
+					},
+					{
+						"pattern": "shared/**",
+						"group": "internal",
+						"position": "after"
+					}
+				],
+				"pathGroupsExcludedImportTypes": ["builtin"],
+				"groups": [
+					"builtin",
+					"external",
+					"internal",
+					"parent",
+					"sibling",
+					"index"
+				]
+			}
+		],
+		"no-restricted-imports": [
+			2,
+			{
+				"patterns": [
+					// Private imports are prohibited, use public imports instead
+					"app/**",
+					"pages/*/**",
+					"features/*/**",
+					"entities/*/**",
+					"shared/*/*/**", // Для shared +1 уровень, т.к. там чаще мы обращаемся к конкретной библиотеке/компоненты
+					// Prefer absolute imports instead of relatives (for root modules)
+					"../**/app",
+					"../**/pages",
+					"../**/features",
+					"../**/entities",
+					"../**/shared"
+				]
+			}
+		]
+	},
+	"plugins": ["effector", "solid"],
+	"ignorePatterns": ["*.css.d.ts", "configs/*", "*.js"]
+}
