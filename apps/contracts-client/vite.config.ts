@@ -5,4 +5,12 @@ import suidPlugin from '@suid/vite-plugin';
 
 export default defineConfig({
 	plugins: [solid(), suidPlugin(), splitVendorChunkPlugin()],
+	server: {
+		proxy: {
+			'/api': {
+				changeOrigin: true,
+				target: '10.147.19.30:81/api/v1',
+			},
+		},
+	},
 });
