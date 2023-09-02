@@ -5,11 +5,14 @@ import * as React from 'react';
 import { LoginForm } from '@/features/auth';
 
 import { routes } from '@/shared/config';
+import { useTitle } from '@/shared/lib';
 import { AuthLayout, PageTitle } from '@/shared/ui';
 
 import styles from './page.module.css';
 
 const LoginPage: React.FC = () => {
+	useTitle('Вход');
+
 	return (
 		<AuthLayout className={styles.layout}>
 			<PageTitle className={styles.title} title='Добро пожаловать!' />
