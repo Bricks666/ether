@@ -1,3 +1,10 @@
+import { createQuery } from '@farfetched/core';
+import {
+	RouteInstance,
+	RouteParams,
+	RouteParamsAndQuery,
+	chainRoute,
+} from 'atomic-router';
 import {
 	Effect,
 	Event,
@@ -7,13 +14,6 @@ import {
 	createStore,
 	sample,
 } from 'effector';
-import { createQuery } from '@farfetched/core';
-import {
-	RouteInstance,
-	RouteParams,
-	RouteParamsAndQuery,
-	chainRoute,
-} from 'atomic-router';
 import { equals } from 'patronum';
 
 import { User, authApi } from '../api';
@@ -154,7 +154,7 @@ export const chainAnonymous = <Params extends RouteParams>(
 	sample({
 		clock: $user,
 		source: $paramsAndQuery,
-		target: sessionCheckStarted,
+		target: auth.start,
 	});
 
 	sample({

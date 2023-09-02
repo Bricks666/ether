@@ -10,7 +10,7 @@ import { Field, Form, PasswordField } from '@/shared/ui';
 import { $error, form, query } from './model';
 import styles from './ui.module.css';
 
-export const LoginForm: React.FC<CommonProps> = (props) => {
+export const RegistrationForm: React.FC<CommonProps> = (props) => {
 	const { className } = props;
 	const submit = useUnit(form.submit);
 	const pending = useUnit(query.$pending);
@@ -21,9 +21,11 @@ export const LoginForm: React.FC<CommonProps> = (props) => {
 		<Form className={cn(styles.form, className)} onSubmit={onSubmit}>
 			<Error />
 			<Login />
+			<Username />
 			<Password />
+			<RepeatPassword />
 			<Button type='submit' disabled={pending}>
-				Войти
+				Зарегистрироваться
 			</Button>
 		</Form>
 	);
@@ -51,7 +53,25 @@ const Login: React.FC = () => {
 			isValid={login.isValid}
 			name='login'
 			label='Логин'
-			autoComplete='username'
+			autoComplete='off'
+			required
+		/>
+	);
+};
+
+const Username: React.FC = () => {
+	const login = useUnit(form.fields.username);
+
+	return (
+		<Field
+			value={login.value}
+			onChange={login.onChange}
+			onBlur={login.onBlur}
+			helperText={login.errorText}
+			isValid={login.isValid}
+			name='login'
+			label='Имя пользователя'
+			autoComplete='off'
 			required
 		/>
 	);
@@ -69,7 +89,25 @@ const Password: React.FC = () => {
 			isValid={password.isValid}
 			name='password'
 			label='Пароль'
-			autoComplete='password'
+			autoComplete='off'
+			required
+		/>
+	);
+};
+
+const RepeatPassword: React.FC = () => {
+	const repeatPassword = useUnit(form.fields.repeatPassword);
+
+	return (
+		<PasswordField
+			value={repeatPassword.value}
+			onChange={repeatPassword.onChange}
+			onBlur={repeatPassword.onBlur}
+			helperText={repeatPassword.errorText}
+			isValid={repeatPassword.isValid}
+			name='repeatPassword'
+			label='Повторите пароль'
+			autoComplete='off'
 			required
 		/>
 	);

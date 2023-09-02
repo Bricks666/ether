@@ -1,19 +1,26 @@
 import { createMutation } from '@farfetched/core';
 import { runtypeContract } from '@farfetched/runtypes';
-import { createEffect, sample } from 'effector';
+import { createEffect, createStore, sample } from 'effector';
 import { createForm } from 'effector-forms';
 import { String } from 'runtypes';
 
-import { LoginParams, authApi, authResponse } from '@/shared/api';
+import {
+	LoginParams,
+	authApi,
+	authResponse,
+	isHttpErrorWithCode,
+} from '@/shared/api';
 import { createFormValidationRule } from '@/shared/lib';
 import { sessionModel } from '@/shared/models';
 
 const handlerFx = createEffect(authApi.login);
 
-export const login = createMutation({
+export const query = createMutation({
 	effect: handlerFx,
 	contract: runtypeContract(authResponse),
 });
+
+export const $error = createStore<string | null>(null);
 
 export const form = createForm<LoginParams>({
 	fields: {
@@ -25,7 +32,7 @@ export const form = createForm<LoginParams>({
 			rules: [
 				createFormValidationRule({
 					name: 'password',
-					text: 'Password should contain at least than 6 symbols',
+					text: 'Пароль должен быть не короче 6 символов',
 					runtype: String.withConstraint((value) => value.length >= 6),
 				}),
 			],
@@ -35,16 +42,36 @@ export const form = createForm<LoginParams>({
 
 sample({
 	clock: form.formValidated,
-	target: login.start,
+	target: query.start,
 });
 
 sample({
-	clock: login.finished.failure,
+	clock: query.finished.failure,
 	target: form.fields.password.reset,
 });
 
 sample({
-	clock: login.finished.success,
+	clock: query.finished.success,
 	fn: ({ result }) => result.user,
 	target: sessionModel.$user,
+});
+
+sample({
+	clock: query.finished.success,
+	fn: () => null,
+	target: $error,
+});
+
+sample({
+	clock: query.finished.failure,
+	filter: isHttpErrorWithCode(404),
+	fn: () => 'Пользователя не существует',
+	target: $error,
+});
+
+sample({
+	clock: query.finished.failure,
+	filter: isHttpErrorWithCode(403),
+	fn: () => 'Неверный пароль',
+	target: $error,
 });

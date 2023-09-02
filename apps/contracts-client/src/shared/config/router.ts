@@ -37,5 +37,3 @@ sample({
 	fn: () => createBrowserHistory(),
 	target: router.setHistory,
 });
-
-window.router = router;

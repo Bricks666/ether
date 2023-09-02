@@ -4,10 +4,10 @@ import * as React from 'react';
 import { PageLoader } from '@/shared/ui';
 
 import { loginPage } from './login';
-
+import { registrationPage } from './registration';
 
 const View = createRoutesView({
-	routes: [loginPage],
+	routes: [loginPage, registrationPage],
 });
 
 export const Pages = () => {
