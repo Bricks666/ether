@@ -1,6 +1,7 @@
 import {
 	Effect,
 	Event,
+	combine,
 	createEffect,
 	createEvent,
 	createStore,
@@ -57,56 +58,65 @@ export const chainAuthorized = <Params extends RouteParams>(
 	route: RouteInstance<Params>,
 	options?: ChainedParams
 ): RouteInstance<Params> => {
-	const checkAuthorized = createEvent<RouteParamsAndQuery<Params>>();
-	const authorizedSuccess = createEvent();
-	const authorizedUnsuccess = createEvent();
+	const sessionCheckStarted = createEvent<RouteParamsAndQuery<Params>>();
+	const sessionCheckSuccessful = createEvent();
+	const sessionCheckFailure = createEvent();
+
+	const $paramsAndQuery = combine({
+		params: route.$params,
+		query: route.$query,
+	});
 
 	sample({
-		clock: checkAuthorized,
+		clock: sessionCheckStarted,
 		filter: equals($status, 'initial'),
 		target: auth.start,
 	});
 
 	sample({
 		clock: auth.finished.failure,
-		target: authorizedUnsuccess,
+		source: $paramsAndQuery,
+		target: sessionCheckFailure,
 	});
 
 	sample({
 		clock: auth.finished.success,
-		target: authorizedSuccess,
+		source: $paramsAndQuery,
+		target: sessionCheckSuccessful,
 	});
 
 	sample({
 		clock: $user,
-		filter: Boolean,
-		target: authorizedSuccess,
+		source: $paramsAndQuery,
+		target: sessionCheckStarted,
 	});
 
 	sample({
-		clock: checkAuthorized,
-		filter: equals($status, 'authorized'),
-		target: authorizedUnsuccess,
-	});
-
-	sample({
-		clock: checkAuthorized,
+		clock: sessionCheckStarted,
+		source: $paramsAndQuery,
 		filter: equals($status, 'anonymous'),
-		target: authorizedUnsuccess,
+		target: sessionCheckFailure,
+	});
+
+	sample({
+		clock: sessionCheckStarted,
+		source: $paramsAndQuery,
+		filter: equals($status, 'authorized'),
+		target: sessionCheckSuccessful,
 	});
 
 	if (options?.otherwise) {
 		sample({
-			clock: authorizedUnsuccess,
+			clock: sessionCheckFailure,
 			target: options?.otherwise as Event<any>,
 		});
 	}
 
 	return chainRoute({
 		route,
-		beforeOpen: checkAuthorized,
-		openOn: authorizedSuccess,
-		cancelOn: authorizedUnsuccess,
+		beforeOpen: sessionCheckStarted,
+		openOn: sessionCheckSuccessful,
+		cancelOn: sessionCheckFailure,
 	});
 };
 
@@ -114,55 +124,64 @@ export const chainAnonymous = <Params extends RouteParams>(
 	route: RouteInstance<Params>,
 	options?: ChainedParams
 ): RouteInstance<Params> => {
-	const checkAuthorized = createEvent<RouteParamsAndQuery<Params>>();
-	const authorizedSuccess = createEvent();
-	const authorizedUnsuccess = createEvent();
+	const sessionCheckStarted = createEvent<RouteParamsAndQuery<Params>>();
+	const sessionCheckSuccessful = createEvent();
+	const sessionCheckFailure = createEvent();
+
+	const $paramsAndQuery = combine({
+		params: route.$params,
+		query: route.$query,
+	});
 
 	sample({
-		clock: checkAuthorized,
+		clock: sessionCheckStarted,
 		filter: equals($status, 'initial'),
 		target: auth.start,
 	});
 
 	sample({
 		clock: auth.finished.failure,
-		target: authorizedUnsuccess,
+		source: $paramsAndQuery,
+		target: sessionCheckFailure,
 	});
 
 	sample({
 		clock: auth.finished.success,
-		target: authorizedSuccess,
+		source: $paramsAndQuery,
+		target: sessionCheckSuccessful,
 	});
 
 	sample({
 		clock: $user,
-		filter: Boolean,
-		target: authorizedSuccess,
+		source: $paramsAndQuery,
+		target: sessionCheckStarted,
 	});
 
 	sample({
-		clock: checkAuthorized,
+		clock: sessionCheckStarted,
+		source: $paramsAndQuery,
 		filter: equals($status, 'anonymous'),
-		target: authorizedUnsuccess,
+		target: sessionCheckFailure,
 	});
 
 	sample({
-		clock: checkAuthorized,
+		clock: sessionCheckStarted,
+		source: $paramsAndQuery,
 		filter: equals($status, 'authorized'),
-		target: authorizedUnsuccess,
+		target: sessionCheckSuccessful,
 	});
 
 	if (options?.otherwise) {
 		sample({
-			clock: authorizedSuccess,
+			clock: sessionCheckSuccessful,
 			target: options?.otherwise as Event<any>,
 		});
 	}
 
 	return chainRoute({
 		route,
-		beforeOpen: checkAuthorized,
-		openOn: authorizedUnsuccess,
-		cancelOn: authorizedSuccess,
+		beforeOpen: sessionCheckStarted,
+		openOn: sessionCheckFailure,
+		cancelOn: sessionCheckSuccessful,
 	});
 };

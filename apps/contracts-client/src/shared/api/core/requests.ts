@@ -1,6 +1,6 @@
 import ky from 'ky';
 
-import { API } from '@/shared/config';
+import { VITE_API } from '@/shared/config';
 
 let accessToken: string | null = null;
 
@@ -9,7 +9,7 @@ const getToken = () => {
 };
 
 export const request = ky.create({
-	prefixUrl: API,
+	prefixUrl: VITE_API,
 	mode: 'cors',
 	credentials: 'include',
 	hooks: {
@@ -25,7 +25,7 @@ export const request = ky.create({
 		afterResponse: [
 			async (input, options, response) => {
 				if (response.status === 401) {
-					const token = await request('/auth/refresh').json<{
+					const token = await request('auth/refresh').json<{
 						readonly accessToken: string;
 					}>();
 

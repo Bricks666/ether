@@ -1,4 +1,8 @@
-import { createHistoryRouter, createRoute } from 'atomic-router';
+import {
+	createHistoryRouter,
+	createRoute,
+	createRouterControls,
+} from 'atomic-router';
 import { sample } from 'effector';
 import { createBrowserHistory } from 'history';
 import { appModel } from '../models';
@@ -11,6 +15,8 @@ export const routes = {
 	containers: createRoute(),
 };
 
+export const controls = createRouterControls();
+
 export const router = createHistoryRouter({
 	routes: [
 		{
@@ -18,6 +24,7 @@ export const router = createHistoryRouter({
 			route: routes.login,
 		},
 	],
+	controls,
 });
 
 sample({
@@ -25,3 +32,5 @@ sample({
 	fn: () => createBrowserHistory(),
 	target: router.setHistory,
 });
+
+window.router = router;

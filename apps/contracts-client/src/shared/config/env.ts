@@ -1,1 +1,1 @@
-export const { API, NETWORK } = import.meta.env;
+export const { VITE_API, VITE_NETWORK } = import.meta.env;

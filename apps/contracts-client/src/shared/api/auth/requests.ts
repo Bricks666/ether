@@ -1,7 +1,7 @@
 import { StatusResponse, coreApi } from '../core';
 import { AuthResponse, LoginParams, RegistrationParams } from './types';
 
-const url = '/auth';
+const url = 'auth';
 
 export const auth = (): Promise<AuthResponse> => {
 	return coreApi.request(`${url}/me`).json();

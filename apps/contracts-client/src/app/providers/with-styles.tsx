@@ -1,12 +1,9 @@
-import { VoidComponent } from 'solid-js';
-import { StyledEngineProvider } from '@suid/material';
+import * as React from 'react';
 
-export const withStyles = (Component: VoidComponent): VoidComponent => {
+export const withStyles = (
+	Component: React.ComponentType
+): React.ComponentType => {
 	return () => {
-		return (
-			<StyledEngineProvider injectFirst>
-				<Component />
-			</StyledEngineProvider>
-		);
+		return <Component />;
 	};
 };

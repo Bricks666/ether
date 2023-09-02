@@ -8,7 +8,9 @@
 		"../../.eslintrc.json",
 		"plugin:effector/recommended",
 		"plugin:effector/scope",
-		"plugin:solid/typescript",
+		"plugin:effector/react",
+		"plugin:effector/patronum",
+		"plugin:react/recommended",
 		"prettier"
 	],
 	"parserOptions": {
@@ -76,8 +78,20 @@
 					"../**/shared"
 				]
 			}
-		]
+		],
+
+		"react/jsx-filename-extension": [1, { "extensions": [".tsx", ".ts"] }],
+		"react/jsx-props-no-spreading": "off",
+		"react/prop-types": "off",
+		"react/require-default-props": "off",
+		"react/jsx-indent": ["error", "tab"],
+		"react/jsx-indent-props": ["error", "tab"],
+		"react/function-component-definition": "off",
+		"react/no-unused-prop-types": "off",
+		"react/no-array-index-key": "off",
+		"react/react-in-jsx-scope": "off",
+		"react/display-name": "off"
 	},
-	"plugins": ["effector", "solid"],
+	"plugins": ["effector", "react"],
 	"ignorePatterns": ["*.css.d.ts", "configs/*", "*.js"]
 }

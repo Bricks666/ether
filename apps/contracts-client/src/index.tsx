@@ -1,9 +1,12 @@
 /* @refresh reload */
-import { render } from 'solid-js/web';
+import { createRoot } from 'react-dom/client';
 
-import './index.css';
 import { App } from './app';
+import { appModel } from './shared/models';
 
-const root = document.getElementById('root');
+const container = document.getElementById('root');
+const root = createRoot(container!);
 
-render(() => <App />, root!);
+appModel.started();
+
+root.render(<App />);

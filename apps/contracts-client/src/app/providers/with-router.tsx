@@ -1,8 +1,17 @@
 /* eslint-disable no-undef */
-import { VoidComponent } from 'solid-js';
-import { RouterProvider } from 'atomic-router-solid';
+import * as React from 'react';
+import { RouterProvider } from 'atomic-router-react';
+import { redirect } from 'atomic-router';
+import { router, routes } from '@/shared/config';
 
-export const withRouter = (Component: VoidComponent): VoidComponent => {
+redirect({
+	clock: router.routeNotFound,
+	route: routes.login,
+});
+
+export const withRouter = (
+	Component: React.ComponentType
+): React.ComponentType => {
 	return () => {
 		return (
 			<RouterProvider router={router}>
