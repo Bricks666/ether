@@ -1,0 +1,11 @@
+.container {
+	display: grid;
+	gap: 2em;
+
+  height: 100%;;
+}
+
+.main {
+	display: grid;
+	gap: 2em;
+}

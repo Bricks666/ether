@@ -1,0 +1,17 @@
+.layout {
+	display: grid;
+	gap: 1em;
+}
+
+.content {
+	display: grid;
+	gap: 3em;
+}
+
+.link {
+	text-align: center;
+}
+
+.question {
+	font-weight: 700;
+}
