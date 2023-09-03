@@ -5,4 +5,5 @@ export * from './create-toggler';
 export * from './use-title';
 export * from './string-to-color';
 export * from './use-intersection';
+export * from './format-date';
 export * from './create-popup-control-model';

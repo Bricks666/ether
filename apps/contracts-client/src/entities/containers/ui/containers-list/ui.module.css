@@ -1,5 +1,5 @@
 .wrapper {
 	display: grid;
 	gap: 2em;
-	grid-template-columns: repeat(auto-fit, minmax(1fr, 450px));
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }

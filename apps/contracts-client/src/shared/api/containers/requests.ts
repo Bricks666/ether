@@ -4,6 +4,7 @@ import {
 	Container,
 	ContainerIdParams,
 	CreateContainerParams,
+	GetByUserParams,
 	UpdateContainerParams,
 } from './types';
 
@@ -14,6 +15,27 @@ export const getAll = (params: PaginationParams): Promise<Container[]> => {
 
 	return coreApi
 		.request(`${url}`, {
+			searchParams: query,
+		})
+		.json();
+};
+
+export const getOwned = (params: PaginationParams): Promise<Container[]> => {
+	const query = new URLSearchParams(params as Record<string, string>);
+
+	return coreApi
+		.request(`${url}/user/sender`, {
+			searchParams: query,
+		})
+		.json();
+};
+
+export const getByUser = (params: GetByUserParams): Promise<Container[]> => {
+	const { userId, ...rest } = params;
+	const query = new URLSearchParams(rest as Record<string, string>);
+
+	return coreApi
+		.request(`${url}/user/${userId}`, {
 			searchParams: query,
 		})
 		.json();

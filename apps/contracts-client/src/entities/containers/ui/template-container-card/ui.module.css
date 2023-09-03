@@ -1,0 +1,35 @@
+.card:hover {
+	box-shadow: var(--mui-shadows-4);
+}
+
+.media {
+	height: 14px;
+}
+
+.header {
+	padding-top: 0;
+}
+
+.type {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: max-content;
+
+	padding: 0.5em;
+
+	border-radius: calc(var(--mui-shape-borderRadius) * 2.5);
+
+	background-color: var(--mui-palette-success-main);
+
+	color: var(--mui-palette-success-contrastText);
+	font-weight: 700;
+	line-height: 1em;
+}
+
+.private {
+	background-color: var(--mui-palette-error-light);
+
+	color: var(--mui-palette-error-contrastText);
+}

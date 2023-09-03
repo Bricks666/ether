@@ -1,5 +1,7 @@
 import { Boolean, Record, Static, String } from 'runtypes';
 
+import { PaginationParams } from '../core';
+
 export const container = Record({
 	id: String,
 	name: String,
@@ -11,6 +13,10 @@ export const container = Record({
 
 export interface ContainerIdParams {
 	readonly id: string;
+}
+
+export interface GetByUserParams extends PaginationParams {
+	readonly userId: string;
 }
 
 export interface Container extends Static<typeof container> {}
