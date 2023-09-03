@@ -52,8 +52,7 @@ sample({
 
 sample({
 	clock: query.finished.success,
-	fn: ({ result }) => result.user,
-	target: sessionModel.$user,
+	target: sessionModel.auth.start,
 });
 
 sample({

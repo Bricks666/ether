@@ -33,13 +33,13 @@ export const auth = createQuery({
 
 sample({
 	clock: auth.start,
+	filter: equals($status, 'initial'),
 	fn: () => 'pending' as const,
 	target: $status,
 });
 
 sample({
 	clock: auth.finished.success,
-	filter: equals(auth.$status, 'done'),
 	fn: () => 'authorized' as const,
 	target: $status,
 });
@@ -48,6 +48,12 @@ sample({
 	clock: auth.finished.failure,
 	fn: () => 'anonymous' as const,
 	target: $status,
+});
+
+sample({
+	clock: auth.finished.success,
+	fn: ({ result }) => result,
+	target: $user,
 });
 
 interface ChainedParams {
@@ -59,6 +65,8 @@ export const chainAuthorized = <Params extends RouteParams>(
 	options?: ChainedParams
 ): RouteInstance<Params> => {
 	const sessionCheckStarted = createEvent<RouteParamsAndQuery<Params>>();
+	const alreadyAnonymous = createEvent();
+	const alreadyAuthorized = createEvent();
 	const sessionCheckSuccessful = createEvent();
 	const sessionCheckFailure = createEvent();
 
@@ -74,41 +82,37 @@ export const chainAuthorized = <Params extends RouteParams>(
 	});
 
 	sample({
-		clock: auth.finished.failure,
-		source: $paramsAndQuery,
-		target: sessionCheckFailure,
-	});
-
-	sample({
-		clock: auth.finished.success,
-		source: $paramsAndQuery,
-		target: sessionCheckSuccessful,
-	});
-
-	sample({
-		clock: $user,
-		source: $paramsAndQuery,
-		target: sessionCheckStarted,
-	});
-
-	sample({
 		clock: sessionCheckStarted,
 		source: $paramsAndQuery,
 		filter: equals($status, 'anonymous'),
-		target: sessionCheckFailure,
+		target: alreadyAnonymous,
 	});
 
 	sample({
 		clock: sessionCheckStarted,
 		source: $paramsAndQuery,
 		filter: equals($status, 'authorized'),
+		target: alreadyAuthorized,
+	});
+
+	sample({
+		clock: [alreadyAnonymous, auth.finished.failure],
+		source: $paramsAndQuery,
+		filter: route.$isOpened,
+		target: sessionCheckFailure,
+	});
+
+	sample({
+		clock: [alreadyAuthorized, auth.finished.success],
+		source: $paramsAndQuery,
+		filter: route.$isOpened,
 		target: sessionCheckSuccessful,
 	});
 
 	if (options?.otherwise) {
 		sample({
 			clock: sessionCheckFailure,
-			target: options?.otherwise as Event<any>,
+			target: options.otherwise as Event<any>,
 		});
 	}
 
@@ -125,6 +129,8 @@ export const chainAnonymous = <Params extends RouteParams>(
 	options?: ChainedParams
 ): RouteInstance<Params> => {
 	const sessionCheckStarted = createEvent<RouteParamsAndQuery<Params>>();
+	const alreadyAnonymous = createEvent();
+	const alreadyAuthorized = createEvent();
 	const sessionCheckSuccessful = createEvent();
 	const sessionCheckFailure = createEvent();
 
@@ -140,41 +146,38 @@ export const chainAnonymous = <Params extends RouteParams>(
 	});
 
 	sample({
-		clock: auth.finished.failure,
-		source: $paramsAndQuery,
-		target: sessionCheckFailure,
-	});
-
-	sample({
-		clock: auth.finished.success,
-		source: $paramsAndQuery,
-		target: sessionCheckSuccessful,
-	});
-
-	sample({
-		clock: $user,
-		source: $paramsAndQuery,
-		target: auth.start,
-	});
-
-	sample({
 		clock: sessionCheckStarted,
 		source: $paramsAndQuery,
 		filter: equals($status, 'anonymous'),
-		target: sessionCheckFailure,
+		target: alreadyAnonymous,
 	});
 
 	sample({
 		clock: sessionCheckStarted,
 		source: $paramsAndQuery,
 		filter: equals($status, 'authorized'),
+		target: alreadyAuthorized,
+	});
+
+	sample({
+		clock: [alreadyAnonymous, auth.finished.failure],
+		source: $paramsAndQuery,
+		filter: route.$isOpened,
+		target: sessionCheckFailure,
+	});
+
+	sample({
+		clock: [alreadyAuthorized, auth.finished.success],
+		source: $paramsAndQuery,
+		filter: route.$isOpened,
 		target: sessionCheckSuccessful,
 	});
 
 	if (options?.otherwise) {
 		sample({
 			clock: sessionCheckSuccessful,
-			target: options?.otherwise as Event<any>,
+			filter: route.$isOpened,
+			target: options.otherwise as Event<any>,
 		});
 	}
 
