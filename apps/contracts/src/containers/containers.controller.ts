@@ -51,21 +51,44 @@ export class ContainersController {
 		return this.containersService.getAll(normalizePagination(query));
 	}
 
-	@ApiOperation({ summary: 'Take all owned by user containers', })
+	@ApiOperation({ summary: 'Take all owned by sender containers', })
 	@ApiOkResponse({
 		type: Container,
 		isArray: true,
 		description: 'Contracts',
 	})
 	@RequiredAccessToken()
-	@Get('/')
-	async getAllByUser(
+	@Get('/user/sender')
+	async getAllOwned(
 		@Query() query: PaginationDto,
 		@AuthorizedUser() user: User
 	): Promise<Container[]> {
 		return this.containersService.getAllByUser(
 			normalizePagination(query),
 			user.id
+		);
+	}
+
+	@ApiOperation({ summary: 'Take all owned by sender containers', })
+	@ApiOkResponse({
+		type: Container,
+		isArray: true,
+		description: 'Contracts',
+	})
+	@ApiParam({
+		type: String,
+		name: 'userId',
+		description: 'User uuid',
+	})
+	@RequiredAccessToken()
+	@Get('/user/:userId')
+	async getAllByUser(
+		@Query() query: PaginationDto,
+		@Param('userId', new ParseUUIDPipe()) userId
+	): Promise<Container[]> {
+		return this.containersService.getAllByUser(
+			normalizePagination(query),
+			userId
 		);
 	}
 

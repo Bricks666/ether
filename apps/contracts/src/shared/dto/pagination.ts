@@ -30,7 +30,7 @@ export const normalizePagination = (
 	pagination: PaginationDto
 ): NormalizedPagination => {
 	return {
-		count: Math.max(pagination.count ?? 10, 1),
+		count: Math.max(pagination.count ?? 100, 1),
 		page: Math.max(pagination.page ?? 1, 1),
 	};
 };
