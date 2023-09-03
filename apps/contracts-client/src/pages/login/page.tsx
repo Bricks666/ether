@@ -2,13 +2,11 @@ import { Card, CardContent, Typography, Link as MUILink } from '@mui/material';
 import { Link } from 'atomic-router-react';
 import * as React from 'react';
 
-import { Header } from '@/widgets/app';
-
 import { LoginForm } from '@/features/auth';
 
 import { routes } from '@/shared/config';
 import { useTitle } from '@/shared/lib';
-import { MainLayout, PageTitle } from '@/shared/ui';
+import { AuthLayout, PageTitle } from '@/shared/ui';
 
 import styles from './page.module.css';
 
@@ -16,7 +14,7 @@ const LoginPage: React.FC = () => {
 	useTitle('Вход');
 
 	return (
-		<MainLayout className={styles.layout} header={<Header />}>
+		<AuthLayout className={styles.layout}>
 			<PageTitle className={styles.title} title='Добро пожаловать!' />
 			<Card>
 				<CardContent className={styles.content}>
@@ -31,7 +29,7 @@ const LoginPage: React.FC = () => {
 					</Typography>
 				</CardContent>
 			</Card>
-		</MainLayout>
+		</AuthLayout>
 	);
 };
 
