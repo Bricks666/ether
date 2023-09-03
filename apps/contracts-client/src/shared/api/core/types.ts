@@ -7,3 +7,8 @@ export const statusResponse = Record({
 });
 
 export interface StatusResponse extends Static<typeof statusResponse> {}
+
+export interface PaginationParams {
+	readonly page?: number;
+	readonly count?: number;
+}
