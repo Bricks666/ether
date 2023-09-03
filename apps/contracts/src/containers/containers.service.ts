@@ -18,15 +18,26 @@ export class ContainersService {
 	) {}
 
 	/**
-	 * Get all public containers
+	 * Get all containers allowed to user.
+	 * Return all containers allowed to user(all public and his private)
 	 * @public
 	 * @async
 	 * @param {NormalizedPagination} pagination request pagination
 	 * @returns {Promise<Container[]>}
 	 */
-	async getAll(pagination: NormalizedPagination): Promise<Container[]> {
+	async getAll(pagination: NormalizedPagination, userId): Promise<Container[]> {
 		return this.containerRepository.getAll(databasePagination(pagination), {
-			isPrivate: false,
+			OR: [
+				{
+					ownerId: userId,
+				},
+				{
+					NOT: {
+						ownerId: userId,
+					},
+					isPrivate: false,
+				}
+			],
 		});
 	}
 
@@ -36,14 +47,16 @@ export class ContainersService {
 	 * @public
 	 * @async
 	 * @param {NormalizedPagination} pagination request pagination
-	 * @param {string} userId uuid of requested user
+	 * @param {string} ownerId uuid of requested user
 	 * @returns {Promise<Container[]>}
 	 */
 	async getAllByUser(
 		pagination: NormalizedPagination,
+		ownerId: string,
 		userId: string
 	): Promise<Container[]> {
 		return this.containerRepository.getAll(databasePagination(pagination), {
+			ownerId,
 			OR: [
 				{
 					ownerId: userId,
