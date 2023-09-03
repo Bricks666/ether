@@ -2,7 +2,7 @@ import { coreApi } from '../core';
 
 import { ApiToken } from './types';
 
-const url = 'security';
+const url = 'contracts/security';
 
 export const getToken = (): Promise<ApiToken | null> => {
 	return coreApi.request(`${url}/api-token`).json();

@@ -2,7 +2,7 @@ import { coreApi } from '../core';
 
 import { CreateWalletParas, Wallet, WalletIdParams } from './types';
 
-const url = 'wallets';
+const url = 'contracts/wallets';
 
 export const getAll = (): Promise<Wallet[]> => {
 	return coreApi.request(`${url}`).json();

@@ -7,7 +7,7 @@ import {
 	UpdateContainerParams,
 } from './types';
 
-const url = 'containers';
+const url = 'contracts/containers';
 
 export const getAll = (params: PaginationParams): Promise<Container[]> => {
 	const query = new URLSearchParams(params as Record<string, string>);

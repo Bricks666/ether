@@ -3,7 +3,7 @@ import { coreApi } from '../core';
 
 import { UpdateUserParams } from './types';
 
-const url = 'users';
+const url = 'contracts/users';
 
 export const update = (params: UpdateUserParams): Promise<User> => {
 	const body = new FormData();

@@ -9,7 +9,7 @@ import {
 	UpdateContractParams,
 } from './types';
 
-const url = 'contracts';
+const url = 'contracts/contracts';
 
 export const getAll = (
 	params: ContractContainerIdParams
