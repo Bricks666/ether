@@ -6,11 +6,13 @@ import { registrationModel } from '@/features/auth';
 import { routes } from '@/shared/config';
 import { sessionModel } from '@/shared/models';
 
-export const currentRoute = routes.registration;
-export const anonymousRoute = sessionModel.chainAnonymous(currentRoute);
+export const currentRoute = routes.auth.registration;
+export const anonymousRoute = sessionModel.chainAnonymous(currentRoute, {
+	otherwise: routes.home.open,
+});
 
 redirect({
-	route: routes.login,
+	route: routes.auth.login,
 	clock: registrationModel.query.finished.success,
 });
 

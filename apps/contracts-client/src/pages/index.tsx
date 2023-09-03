@@ -3,11 +3,12 @@ import * as React from 'react';
 
 import { PageLoader } from '@/shared/ui';
 
+import { homePage } from './home';
 import { loginPage } from './login';
 import { registrationPage } from './registration';
 
 const View = createRoutesView({
-	routes: [loginPage, registrationPage],
+	routes: [loginPage, registrationPage, homePage],
 });
 
 export const Pages = () => {

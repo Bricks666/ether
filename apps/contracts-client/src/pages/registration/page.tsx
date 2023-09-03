@@ -22,7 +22,7 @@ const RegistrationPage: React.FC = () => {
 					<Typography className={styles.link}>
 						<span className={styles.question}>Уже есть аккаунт?</span>
 						<br /> Тогда{' '}
-						<MUILink to={routes.login} component={Link}>
+						<MUILink to={routes.auth.login} component={Link}>
 							войдите в него
 						</MUILink>{' '}
 						прямо сейчас

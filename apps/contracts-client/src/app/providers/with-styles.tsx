@@ -41,5 +41,13 @@ const theme = extendTheme({
 				},
 			},
 		},
+		MuiAppBar: {
+			defaultProps: {
+				color: 'default',
+				sx: {
+					borderWidth: '2px',
+				},
+			},
+		},
 	},
 });

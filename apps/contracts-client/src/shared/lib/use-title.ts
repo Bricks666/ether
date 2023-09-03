@@ -7,7 +7,13 @@ export interface UseTitleParams {
 	readonly useSiteName?: boolean;
 }
 
-export const useTitle = (title: string, options: UseTitleParams = {}): void => {
+export const useTitle = (
+	title: string,
+	options: UseTitleParams = {
+		useSiteName: true,
+		returnOnUnmount: true,
+	}
+): void => {
 	useLayoutEffect(() => {
 		const getTitle = () => {
 			if (!options.useSiteName) {

@@ -5,8 +5,10 @@ import { loginModel } from '@/features/auth';
 import { routes } from '@/shared/config';
 import { sessionModel } from '@/shared/models';
 
-export const currentRoute = routes.login;
-export const anonymousRoute = sessionModel.chainAnonymous(currentRoute);
+export const currentRoute = routes.auth.login;
+export const anonymousRoute = sessionModel.chainAnonymous(currentRoute, {
+	otherwise: routes.home.open,
+});
 
 sample({
 	clock: anonymousRoute.closed,
